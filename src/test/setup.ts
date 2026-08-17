@@ -1,10 +1,27 @@
 import '@testing-library/jest-dom/vitest';
 
 import { cleanup } from '@testing-library/react';
-import { afterEach } from 'vitest';
+import { afterEach, vi } from 'vitest';
 
 // Ensure React Testing Library unmounts trees between tests to avoid
 // cross-test DOM leakage.
 afterEach(() => {
   cleanup();
 });
+
+// jsdom does not implement matchMedia, which MUI's useMediaQuery relies on.
+if (!window.matchMedia) {
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+}
+
+// jsdom does not implement scrollIntoView, used for focus management.
+window.HTMLElement.prototype.scrollIntoView = vi.fn();
