@@ -1,16 +1,6 @@
-import { expect, type Page, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-const QUESTIONS = {
-  liability: 'Benötigen Sie eine Haftpflichtversicherung?',
-  casco: 'Benötigen Sie eine Kasko?',
-  cascoType: 'Welche Art von Kasko benötigen Sie?',
-  licensePlate: 'Welche Kennzeichenart benötigen Sie?',
-} as const;
-
-/** Clicks an option inside the question identified by its group label. */
-async function choose(page: Page, question: string, option: string) {
-  await page.getByRole('group', { name: question }).getByRole('button', { name: option }).click();
-}
+import { choose, QUESTIONS } from './helpers';
 
 test('shows the first question on load', async ({ page }) => {
   await page.goto('/');
