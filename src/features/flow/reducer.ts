@@ -18,7 +18,7 @@ export function initFlowState(flow: Flow): FlowState {
 /**
  * Builds the reducer for a given flow.
  *
- * The reducer is a pure function of `(state, action)` — the flow definition is
+ * The reducer is a pure function of `(state, action)`; the flow definition is
  * captured once via this factory. Steps are treated as immutable: the selection
  * is tracked alongside each step rather than by mutating it, so no deep copying
  * of the flow is ever needed.
