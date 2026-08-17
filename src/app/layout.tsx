@@ -9,6 +9,8 @@ import type { Metadata, Viewport } from 'next';
 import { THEME_COLOR } from '@/theme/theme';
 import { ThemeRegistry } from '@/theme/ThemeRegistry';
 
+import { Providers } from './providers';
+
 export const metadata: Metadata = {
   title: 'Versicherungs-Helfer',
   description: 'Ein Chatbot, der Ihnen hilft, die passende Versicherung zu wählen.',
@@ -24,7 +26,9 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="de">
       <body>
-        <ThemeRegistry>{children}</ThemeRegistry>
+        <ThemeRegistry>
+          <Providers>{children}</Providers>
+        </ThemeRegistry>
       </body>
     </html>
   );
