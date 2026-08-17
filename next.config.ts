@@ -1,5 +1,9 @@
 import type { NextConfig } from 'next';
 
-const nextConfig: NextConfig = {/* config options here */};
+const nextConfig: NextConfig = {
+  // Emit a standalone server bundle so the Docker image can ship just the
+  // server and its minimal dependencies.
+  output: 'standalone',
+};
 
 export default nextConfig;
