@@ -22,6 +22,6 @@ old `_document`.
 ## Consequences
 
 - No client-side fetch for the flow: it's embedded in the initial HTML.
-- Exactly one client boundary (`InsuranceChat`) — everything above it stays a
+- Exactly one client boundary (`InsuranceChat`); everything above it stays a
   Server Component.
 - MUI's SSR setup is a few lines instead of a hand-rolled `_document`.

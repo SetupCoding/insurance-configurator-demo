@@ -18,7 +18,7 @@ main e2e run: `test:e2e` runs `playwright test --grep-invert @visual`, so the
 required CI job (`ci.yml`) never runs them. They run instead via
 `pnpm test:visual`, and in CI only on demand through a separate
 `visual.yml` workflow pinned to the `mcr.microsoft.com/playwright` container
-image that matches the Playwright version in `package.json` — the same
+image that matches the Playwright version in `package.json`, the same
 environment the baselines should be regenerated from.
 
 ## Consequences
@@ -27,5 +27,5 @@ environment the baselines should be regenerated from.
 - Regenerating baselines is a deliberate, on-demand action
   (`pnpm test:visual -- --update-snapshots`, ideally inside the pinned
   container) rather than something that happens implicitly on every push.
-- A real visual regression only surfaces when someone runs the visual suite —
+- A real visual regression only surfaces when someone runs the visual suite;
   it is not caught automatically on every PR.

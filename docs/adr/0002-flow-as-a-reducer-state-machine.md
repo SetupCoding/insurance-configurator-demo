@@ -9,7 +9,7 @@ Accepted
 The conversation is a decision tree: each step offers options, each option
 points at the next step (or ends the flow). The UI needs to show the full
 history of answered steps, let the user revise an earlier answer, and detect
-completion — without ad hoc boolean flags scattered across components.
+completion, without ad hoc boolean flags scattered across components.
 
 ## Decision
 
@@ -20,8 +20,8 @@ the reducer itself stays a pure function. State is `{ steps, status }`, where
 selection (`null` while unanswered). Selecting an option on an earlier step
 truncates everything after it, since those answers are no longer valid.
 
-Steps are treated as immutable — the selection is tracked alongside each step
-entry rather than mutating the step — so no deep copying of the flow is ever
+Steps are treated as immutable: the selection is tracked alongside each step
+entry rather than mutating the step, so no deep copying of the flow is ever
 needed.
 
 `useInsuranceFlow` (`src/features/flow/useInsuranceFlow.ts`) wraps this in

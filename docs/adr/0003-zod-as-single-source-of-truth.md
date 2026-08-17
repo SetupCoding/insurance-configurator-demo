@@ -7,7 +7,7 @@ Accepted
 ## Context
 
 The domain has a handful of shapes (flow steps, options, submitted answers)
-that need both compile-time types and runtime validation — the flow is
+that need both compile-time types and runtime validation. The flow is
 external-ish data (a bundled JSON fixture today, potentially a real API
 tomorrow) and the `/api/conversation` submission is genuinely untrusted input.
 Hand-writing TypeScript interfaces alongside separate runtime checks invites
@@ -23,7 +23,7 @@ load (`src/lib/data/flow.ts`); the conversation submission is parsed through
 
 ## Consequences
 
-- Types and validation can never disagree — there is only one definition.
+- Types and validation can never disagree, since there is only one definition.
 - A malformed flow fixture fails fast at build/import time rather than
   producing confusing UI bugs.
 - Untrusted input (`POST /api/conversation`) is validated the same way as
