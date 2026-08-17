@@ -17,13 +17,14 @@ type Props = {
 export function Conversation({ steps, isFinished, onSelect }: Props) {
   return (
     <Box sx={{ width: '100%' }}>
-      {steps.map(({ step, selectedValue }) => (
+      {steps.map(({ step, selectedValue }, index) => (
         <StepQuestion
           key={step.id}
           step={step}
           selectedValue={selectedValue}
           disabled={isFinished}
           onSelect={(value) => onSelect(step.id, value)}
+          autoFocus={index > 0}
         />
       ))}
     </Box>

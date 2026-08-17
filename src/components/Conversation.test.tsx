@@ -50,6 +50,11 @@ describe('Conversation', () => {
     expect(onSelect).toHaveBeenCalledWith(200, 'a');
   });
 
+  it('moves focus to a newly revealed question (not the first)', () => {
+    renderWithTheme(<Conversation steps={steps} isFinished={false} onSelect={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: 'Frage zwei?' })).toHaveFocus();
+  });
+
   it('disables all options once the flow is finished', () => {
     renderWithTheme(<Conversation steps={steps} isFinished onSelect={vi.fn()} />);
 

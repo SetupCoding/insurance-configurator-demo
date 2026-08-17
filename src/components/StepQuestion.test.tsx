@@ -54,4 +54,18 @@ describe('StepQuestion', () => {
     expect(screen.getByRole('button', { name: 'Ja' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Nein' })).toBeDisabled();
   });
+
+  it('moves focus to the question heading when autoFocus is set', () => {
+    renderWithTheme(
+      <StepQuestion
+        step={step}
+        selectedValue={null}
+        disabled={false}
+        onSelect={vi.fn()}
+        autoFocus
+      />,
+    );
+
+    expect(screen.getByRole('heading', { name: step.text })).toHaveFocus();
+  });
 });

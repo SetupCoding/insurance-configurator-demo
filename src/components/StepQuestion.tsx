@@ -8,6 +8,7 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
+import { useEffect, useRef } from 'react';
 
 import type { OptionValue, Step } from '@/lib/schema/flow';
 
@@ -25,20 +26,46 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   },
 }));
 
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+}
+
 type Props = {
   step: Step;
   selectedValue: OptionValue | null;
   disabled: boolean;
   onSelect: (value: OptionValue) => void;
+  /** When true, focus moves to this question as it appears (skip the first). */
+  autoFocus?: boolean;
 };
 
 /** Renders a single question with its selectable options. */
-export function StepQuestion({ step, selectedValue, disabled, onSelect }: Props) {
+export function StepQuestion({
+  step,
+  selectedValue,
+  disabled,
+  onSelect,
+  autoFocus = false,
+}: Props) {
   const isWide = useMediaQuery('(min-width:600px)');
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (!autoFocus) return;
+    // Move focus to the new question so screen-reader users hear it, and bring
+    // it into view. Motion is suppressed when the user prefers reduced motion.
+    headingRef.current?.focus();
+    headingRef.current?.scrollIntoView({
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      block: 'center',
+    });
+  }, [autoFocus]);
 
   return (
     <Box sx={{ my: 3 }}>
-      <Typography variant="h3" gutterBottom>
+      <Typography ref={headingRef} tabIndex={-1} variant="h3" gutterBottom>
         {step.text}
       </Typography>
       <StyledToggleButtonGroup
