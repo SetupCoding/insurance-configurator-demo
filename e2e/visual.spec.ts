@@ -33,3 +33,27 @@ test.describe('visual regression @visual', () => {
     await expect(page).toHaveScreenshot('completed.png', options);
   });
 });
+
+test.describe('forced-colors @visual', () => {
+  test.skip(
+    ({ browserName }) => browserName !== 'chromium',
+    'forced-colors emulation is Chromium-only',
+  );
+
+  const options = { fullPage: true, maxDiffPixelRatio: 0.05 } as const;
+
+  test('initial page', async ({ page }) => {
+    await page.emulateMedia({ forcedColors: 'active' });
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page).toHaveScreenshot('forced-colors-initial.png', options);
+  });
+
+  test('selected option', async ({ page }) => {
+    await page.emulateMedia({ forcedColors: 'active' });
+    await page.goto('/');
+    await choose(page, QUESTIONS.liability, 'Ja');
+    await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeVisible();
+    await expect(page).toHaveScreenshot('forced-colors-selected.png', options);
+  });
+});
