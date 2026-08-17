@@ -4,9 +4,11 @@ import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 
 // Ensure React Testing Library unmounts trees between tests to avoid
-// cross-test DOM leakage.
+// cross-test DOM leakage, and reset persisted state between tests.
 afterEach(() => {
   cleanup();
+  window.sessionStorage.clear();
+  window.localStorage.clear();
 });
 
 // jsdom does not implement matchMedia, which MUI's useMediaQuery relies on.

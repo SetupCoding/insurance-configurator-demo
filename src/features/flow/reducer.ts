@@ -1,6 +1,6 @@
 import type { Flow, OptionValue, Step } from '@/lib/schema/flow';
 
-import type { Answer, FlowAction, FlowState } from './types';
+import type { Answer, FlowAction, FlowState, Selection } from './types';
 
 /** Finds a step by id. Returns undefined when the id is not part of the flow. */
 export function findStepById(flow: Flow, id: number): Step | undefined {
@@ -70,4 +70,15 @@ export function selectAnswers(state: FlowState): Answer[] {
     }
   }
   return answers;
+}
+
+/** Projects the answered steps into replayable selections for persistence. */
+export function selectSelections(state: FlowState): Selection[] {
+  const selections: Selection[] = [];
+  for (const entry of state.steps) {
+    if (entry.selectedValue !== null) {
+      selections.push({ stepId: entry.step.id, value: entry.selectedValue as OptionValue });
+    }
+  }
+  return selections;
 }

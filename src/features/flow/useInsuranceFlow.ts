@@ -1,18 +1,41 @@
 'use client';
 
-import { useCallback, useMemo, useReducer } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 
 import type { Flow, OptionValue } from '@/lib/schema/flow';
 
-import { createFlowReducer, initFlowState, selectAnswers } from './reducer';
+import { loadSelections, saveSelections } from './persistence';
+import { createFlowReducer, initFlowState, selectAnswers, selectSelections } from './reducer';
 
 /**
  * Drives the insurance conversation. Wraps the pure flow state machine in a
- * `useReducer` and exposes a small, intention-revealing API to the UI.
+ * `useReducer`, restores any previously answered steps after mount, and
+ * persists progress so a refresh does not lose the user's answers.
  */
 export function useInsuranceFlow(flow: Flow) {
   const reducer = useMemo(() => createFlowReducer(flow), [flow]);
   const [state, dispatch] = useReducer(reducer, flow, initFlowState);
+  const [hydrated, setHydrated] = useState(false);
+  const hasRestored = useRef(false);
+
+  // Restore persisted selections once, after mount. Doing this in an effect
+  // (rather than during init) keeps the server and client render identical and
+  // avoids a hydration mismatch.
+  useEffect(() => {
+    if (hasRestored.current) return;
+    hasRestored.current = true;
+    for (const { stepId, value } of loadSelections()) {
+      dispatch({ type: 'selectOption', stepId, value });
+    }
+    setHydrated(true);
+  }, []);
+
+  // Persist only after restoration, so the initial empty state never clobbers
+  // saved progress.
+  useEffect(() => {
+    if (!hydrated) return;
+    saveSelections(selectSelections(state));
+  }, [hydrated, state]);
 
   const selectOption = useCallback(
     (stepId: number, value: OptionValue) => dispatch({ type: 'selectOption', stepId, value }),

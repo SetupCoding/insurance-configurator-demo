@@ -22,3 +22,9 @@ export type Answer = {
   name: string;
   value: OptionValue;
 };
+
+/** A persisted selection, used to restore progress after a refresh. */
+export type Selection = {
+  stepId: number;
+  value: OptionValue;
+};
