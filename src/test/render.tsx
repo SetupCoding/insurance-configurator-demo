@@ -4,9 +4,9 @@ import type { ReactElement, ReactNode } from 'react';
 
 import { theme } from '@/theme/theme';
 
-function Providers({ children }: { children: ReactNode }) {
+const Providers = ({ children }: { children: ReactNode }) => {
   return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
-}
+};
 
 /** Renders a component tree wrapped in the application MUI theme. */
 export function renderWithTheme(ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) {

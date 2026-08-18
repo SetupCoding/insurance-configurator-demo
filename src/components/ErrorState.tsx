@@ -8,7 +8,7 @@ type Props = {
 };
 
 /** Announces an error and, optionally, offers a retry. */
-export function ErrorState({ message, onRetry }: Props) {
+export const ErrorState = ({ message, onRetry }: Props) => {
   if (!message) return null;
 
   return (
@@ -27,4 +27,4 @@ export function ErrorState({ message, onRetry }: Props) {
       )}
     </Box>
   );
-}
+};

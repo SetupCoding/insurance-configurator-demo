@@ -47,13 +47,13 @@ type Props = {
 };
 
 /** Renders a single question with its selectable options. */
-export function StepQuestion({
+export const StepQuestion = ({
   step,
   selectedValue,
   disabled,
   onSelect,
   autoFocus = false,
-}: Props) {
+}: Props) => {
   const firstOptionRef = useRef<ComponentRef<typeof ToggleButton>>(null);
 
   useEffect(() => {
@@ -96,4 +96,4 @@ export function StepQuestion({
       </StyledToggleButtonGroup>
     </Box>
   );
-}
+};

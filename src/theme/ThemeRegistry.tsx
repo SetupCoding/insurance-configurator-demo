@@ -12,7 +12,7 @@ import { ThemeToggle } from './ThemeToggle';
  * Wires MUI into the App Router: the cache provider handles Emotion style
  * injection during SSR, and the theme provider exposes the design tokens.
  */
-export function ThemeRegistry({ children }: { children: ReactNode }) {
+export const ThemeRegistry = ({ children }: { children: ReactNode }) => {
   return (
     <AppRouterCacheProvider options={{ key: 'mui' }}>
       <ThemeProvider theme={theme} defaultMode="dark">
@@ -22,4 +22,4 @@ export function ThemeRegistry({ children }: { children: ReactNode }) {
       </ThemeProvider>
     </AppRouterCacheProvider>
   );
-}
+};

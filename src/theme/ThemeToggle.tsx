@@ -23,7 +23,7 @@ const sx = {
  * mount, so a disabled placeholder is shown until then to avoid a hydration
  * mismatch.
  */
-export function ThemeToggle() {
+export const ThemeToggle = () => {
   const { mode, setMode } = useColorScheme();
 
   if (!mode) {
@@ -41,4 +41,4 @@ export function ThemeToggle() {
       {isDark ? <LightModeIcon /> : <DarkModeIcon />}
     </IconButton>
   );
-}
+};

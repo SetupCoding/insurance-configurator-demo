@@ -19,7 +19,7 @@ type Props = {
  * submits the answers once the user confirms, surfacing loading, success and
  * error feedback (with a retry).
  */
-export function InsuranceChat({ flow }: Props) {
+export const InsuranceChat = ({ flow }: Props) => {
   const { steps, isFinished, hasAnswers, answers, selectOption, reset } = useInsuranceFlow(flow);
   const submit = useSubmitAnswers();
 
@@ -82,4 +82,4 @@ export function InsuranceChat({ flow }: Props) {
       )}
     </Container>
   );
-}
+};

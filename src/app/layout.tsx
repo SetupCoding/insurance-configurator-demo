@@ -23,7 +23,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: LayoutProps<'/'>) {
+const RootLayout = ({ children }: LayoutProps<'/'>) => {
   return (
     // InitColorSchemeScript sets data-mui-color-scheme before hydration, which
     // intentionally differs from what the server rendered.
@@ -39,4 +39,6 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

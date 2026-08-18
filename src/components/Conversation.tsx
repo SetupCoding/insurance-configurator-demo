@@ -15,7 +15,7 @@ type Props = {
 };
 
 /** Renders the ordered list of questions that make up the conversation. */
-export function Conversation({ steps, disabled, onSelect }: Props) {
+export const Conversation = ({ steps, disabled, onSelect }: Props) => {
   return (
     <Box sx={{ width: '100%' }}>
       {steps.map(({ step, selectedValue }, index) => (
@@ -30,4 +30,4 @@ export function Conversation({ steps, disabled, onSelect }: Props) {
       ))}
     </Box>
   );
-}
+};

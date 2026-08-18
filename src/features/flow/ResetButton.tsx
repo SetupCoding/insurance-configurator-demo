@@ -25,7 +25,7 @@ type Props = {
  * the first button ("Abbrechen") by default, so a stray Enter cancels
  * instead of confirming the destructive action.
  */
-export function ResetButton({ onConfirm }: Props) {
+export const ResetButton = ({ onConfirm }: Props) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   const close = () => dialogRef.current?.close();
@@ -80,4 +80,4 @@ export function ResetButton({ onConfirm }: Props) {
       </Box>
     </>
   );
-}
+};
