@@ -2,9 +2,9 @@
 
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import SendIcon from '@mui/icons-material/Send';
-import { Box, Button, Container, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Container, Typography } from '@mui/material';
 
-import { Conversation, ErrorState, LoadingIndicator } from '@/components';
+import { Conversation, ErrorState } from '@/components';
 import type { Flow } from '@/lib/schema/flow';
 
 import { useInsuranceFlow } from './useInsuranceFlow';
@@ -58,18 +58,22 @@ export function InsuranceChat({ flow }: Props) {
 
       <Conversation steps={steps} isFinished={isFinished} onSelect={selectOption} />
 
-      {isFinished && submit.isIdle && (
+      {isFinished && (submit.isIdle || submit.isPending) && (
         <Button
           variant="contained"
-          startIcon={<SendIcon />}
-          onClick={() => mutate(answers)}
+          startIcon={
+            submit.isPending ? <CircularProgress size={16} color="inherit" /> : <SendIcon />
+          }
+          onClick={() => {
+            if (!submit.isPending) mutate(answers);
+          }}
+          aria-busy={submit.isPending}
+          aria-disabled={submit.isPending}
           sx={{ mt: 3 }}
         >
-          Absenden
+          {submit.isPending ? 'Wird gesendet…' : 'Absenden'}
         </Button>
       )}
-
-      <LoadingIndicator isLoading={submit.isPending} />
 
       {submit.isSuccess && (
         <Typography variant="h3" sx={{ mt: 4 }}>

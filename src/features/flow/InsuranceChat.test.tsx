@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
-import { http, HttpResponse } from 'msw';
+import { delay, http, HttpResponse } from 'msw';
 import type { ReactElement } from 'react';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
@@ -60,6 +60,25 @@ describe('InsuranceChat', () => {
 
     expect(await screen.findByText(/Herzlichen Dank für Ihre Angaben!/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Absenden' })).not.toBeInTheDocument();
+  });
+
+  it('marks the submit button busy while the request is in flight', async () => {
+    server.use(
+      http.post('*/api/conversation', async () => {
+        await delay(50);
+        return HttpResponse.json({ status: 'ok' }, { status: 200 });
+      }),
+    );
+
+    renderChat(<InsuranceChat flow={flow} />);
+    await completeFlow();
+    await userEvent.click(screen.getByRole('button', { name: 'Absenden' }));
+
+    const pendingButton = screen.getByRole('button', { name: 'Wird gesendet…' });
+    expect(pendingButton).toHaveAttribute('aria-busy', 'true');
+    expect(pendingButton).toHaveAttribute('aria-disabled', 'true');
+
+    expect(await screen.findByText(/Herzlichen Dank für Ihre Angaben!/i)).toBeInTheDocument();
   });
 
   it('hides the reset button before any answer is given', () => {
