@@ -6,18 +6,18 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 import type { ReactNode } from 'react';
 
 import { theme } from './theme';
-import { ThemeToggle } from './ThemeToggle';
 
 /**
  * Wires MUI into the App Router: the cache provider handles Emotion style
  * injection during SSR, and the theme provider exposes the design tokens.
+ * The theme toggle itself lives in the page header, not here, so it scrolls
+ * with the page like the rest of the chrome.
  */
 export const ThemeRegistry = ({ children }: { children: ReactNode }) => {
   return (
     <AppRouterCacheProvider options={{ key: 'mui' }}>
       <ThemeProvider theme={theme} defaultMode="dark">
         <CssBaseline />
-        <ThemeToggle />
         {children}
       </ThemeProvider>
     </AppRouterCacheProvider>

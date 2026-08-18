@@ -66,6 +66,17 @@ test('removes downstream steps when an earlier answer changes', async ({ page })
   await expect(page.getByRole('heading', { name: QUESTIONS.licensePlate })).toBeVisible();
 });
 
+test('header does not overlap the title on a narrow viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto('/');
+
+  // The header has a fixed min-height regardless of whether the reset
+  // button is showing in it, so this holds whether or not one has answered.
+  const headerBox = (await page.locator('header').boundingBox())!;
+  const titleBox = (await page.getByRole('heading', { level: 1 }).boundingBox())!;
+  expect(titleBox.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height);
+});
+
 test('shows an error and recovers when submission fails then succeeds', async ({ page }) => {
   // Fail the first submission.
   await page.route('**/api/conversation', (route) => route.fulfill({ status: 500 }));

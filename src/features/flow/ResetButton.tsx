@@ -5,12 +5,6 @@ import { Box, Button, Typography } from '@mui/material';
 import { useRef } from 'react';
 
 const buttonSx = {
-  // Fixed, so appearing once an answer exists never shifts the conversation
-  // below it (matching the theme toggle's corner in the top-right).
-  position: 'fixed',
-  top: 16,
-  left: 16,
-  zIndex: 'tooltip',
   // The button's default line-height is looser than the icon is tall, which
   // otherwise leaves the (all-caps, no descenders) label sitting visibly
   // above centre next to it.

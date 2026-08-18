@@ -119,6 +119,20 @@ describe('InsuranceChat', () => {
     expect(screen.queryByRole('button', { name: 'Neu starten' })).not.toBeInTheDocument();
   });
 
+  it('moves the reset button from the header to next to the thank-you message', async () => {
+    renderChat(<InsuranceChat flow={flow} />);
+
+    await completeFlow();
+    expect(screen.getByRole('button', { name: 'Neu starten' })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Absenden' }));
+    await screen.findByText(/Herzlichen Dank für Ihre Angaben!/i);
+
+    // Exactly one reset button exists post-submission, right after the
+    // thank-you message, not still sitting in the header too.
+    expect(screen.getAllByRole('button', { name: 'Neu starten' })).toHaveLength(1);
+  });
+
   it('shows an error with a working retry when submission fails', async () => {
     server.use(
       http.post('*/api/conversation', () => HttpResponse.json({ error: 'boom' }, { status: 500 })),
