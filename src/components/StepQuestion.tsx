@@ -11,7 +11,9 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   justifyContent: 'center',
   gap: theme.spacing(1.5),
   '& .MuiToggleButtonGroup-grouped': {
-    border: `1px solid ${theme.palette.divider}`,
+    // The theme's default divider is intentionally faint; these are the main
+    // interactive controls on the page and need a clearly visible outline.
+    border: `1px solid ${theme.alpha(theme.palette.text.primary, 0.28)}`,
     borderRadius: theme.shape.borderRadius,
     paddingInline: theme.spacing(3),
     '&.Mui-disabled': {
