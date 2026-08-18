@@ -25,7 +25,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="de">
+    // InitColorSchemeScript sets data-mui-color-scheme before hydration, which
+    // intentionally differs from what the server rendered.
+    <html lang="de" suppressHydrationWarning>
       <body>
         <InitColorSchemeScript attribute="data-mui-color-scheme" defaultMode="dark" />
         <ThemeRegistry>
