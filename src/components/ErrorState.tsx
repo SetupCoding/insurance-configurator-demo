@@ -1,3 +1,4 @@
+import SendIcon from '@mui/icons-material/Send';
 import { Box, Button, Typography } from '@mui/material';
 
 type Props = {
@@ -21,7 +22,15 @@ export const ErrorState = ({ message, onRetry }: Props) => {
         {onRetry ? '' : ' Bitte versuchen Sie es in ein paar Minuten erneut.'}
       </Typography>
       {onRetry && (
-        <Button variant="contained" color="error" onClick={onRetry}>
+        <Button
+          variant="contained"
+          color="error"
+          startIcon={<SendIcon />}
+          onClick={onRetry}
+          // The default line-height is looser than the icon is tall, which
+          // otherwise leaves the label sitting visibly above centre next to it.
+          sx={{ lineHeight: 1 }}
+        >
           Erneut absenden
         </Button>
       )}

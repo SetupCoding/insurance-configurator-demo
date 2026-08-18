@@ -63,7 +63,9 @@ export const InsuranceChat = ({ flow }: Props) => {
           }}
           aria-busy={submit.isPending}
           aria-disabled={submit.isPending}
-          sx={{ mt: 3 }}
+          // The default line-height is looser than the icon is tall, which
+          // otherwise leaves the label sitting visibly above centre next to it.
+          sx={{ mt: 3, lineHeight: 1 }}
         >
           {submit.isPending ? 'Wird gesendet…' : 'Absenden'}
         </Button>
