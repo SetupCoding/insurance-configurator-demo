@@ -6,6 +6,7 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 import type { ReactNode } from 'react';
 
 import { theme } from './theme';
+import { ThemeToggle } from './ThemeToggle';
 
 /**
  * Wires MUI into the App Router: the cache provider handles Emotion style
@@ -16,6 +17,7 @@ export function ThemeRegistry({ children }: { children: ReactNode }) {
     <AppRouterCacheProvider options={{ key: 'mui' }}>
       <ThemeProvider theme={theme} defaultMode="dark">
         <CssBaseline />
+        <ThemeToggle />
         {children}
       </ThemeProvider>
     </AppRouterCacheProvider>
