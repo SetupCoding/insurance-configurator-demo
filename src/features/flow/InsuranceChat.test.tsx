@@ -46,6 +46,26 @@ describe('InsuranceChat', () => {
     expect(await screen.findByText(/Herzlichen Dank für Ihre Angaben!/i)).toBeInTheDocument();
   });
 
+  it('hides the reset button before any answer is given', () => {
+    renderChat(<InsuranceChat flow={flow} />);
+    expect(screen.queryByRole('button', { name: 'Neu starten' })).not.toBeInTheDocument();
+  });
+
+  it('resets to the first question when "Neu starten" is clicked', async () => {
+    renderChat(<InsuranceChat flow={flow} />);
+
+    await choose('Benötigen Sie eine Haftpflichtversicherung?', 'Ja');
+    await userEvent.click(screen.getByRole('button', { name: 'Neu starten' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'Benötigen Sie eine Haftpflichtversicherung?' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Benötigen Sie eine Kasko?' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Neu starten' })).not.toBeInTheDocument();
+  });
+
   it('shows an error with a working retry when submission fails', async () => {
     server.use(
       http.post('*/api/conversation', () => HttpResponse.json({ error: 'boom' }, { status: 500 })),

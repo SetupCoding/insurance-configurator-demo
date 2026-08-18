@@ -55,6 +55,8 @@ export function createFlowReducer(flow: Flow) {
           status: 'in_progress',
         };
       }
+      case 'reset':
+        return initFlowState(flow);
       default:
         return state;
     }

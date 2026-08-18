@@ -46,4 +46,24 @@ describe('useInsuranceFlow', () => {
     expect(result.current.steps.map((s) => s.step.id)).toEqual([100, 200]);
     expect(result.current.steps[0].selectedValue).toBe(false);
   });
+
+  it('reports hasAnswers once an option has been selected', () => {
+    const { result } = renderHook(() => useInsuranceFlow(flow));
+    expect(result.current.hasAnswers).toBe(false);
+
+    act(() => result.current.selectOption(100, true));
+    expect(result.current.hasAnswers).toBe(true);
+  });
+
+  it('resets back to the first step and clears persisted selections', () => {
+    const { result } = renderHook(() => useInsuranceFlow(flow));
+    act(() => result.current.selectOption(100, true));
+
+    act(() => result.current.reset());
+    expect(result.current.steps.map((s) => s.step.id)).toEqual([100]);
+    expect(result.current.hasAnswers).toBe(false);
+
+    const remount = renderHook(() => useInsuranceFlow(flow));
+    expect(remount.result.current.steps.map((s) => s.step.id)).toEqual([100]);
+  });
 });

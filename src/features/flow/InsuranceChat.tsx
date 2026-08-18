@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Typography } from '@mui/material';
+import { Box, Button, Container, Typography } from '@mui/material';
 import { useEffect } from 'react';
 
 import { Conversation, ErrorState, LoadingIndicator } from '@/components';
@@ -19,7 +19,7 @@ type Props = {
  * feedback (with a retry).
  */
 export function InsuranceChat({ flow }: Props) {
-  const { steps, isFinished, answers, selectOption } = useInsuranceFlow(flow);
+  const { steps, isFinished, hasAnswers, answers, selectOption, reset } = useInsuranceFlow(flow);
   const submit = useSubmitAnswers();
 
   const { mutate } = submit;
@@ -31,6 +31,11 @@ export function InsuranceChat({ flow }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFinished]);
 
+  const handleReset = () => {
+    submit.reset();
+    reset();
+  };
+
   return (
     <Container
       maxWidth="md"
@@ -41,6 +46,12 @@ export function InsuranceChat({ flow }: Props) {
       <Typography variant="h2" gutterBottom>
         Versicherungs-Helfer
       </Typography>
+
+      {hasAnswers && (
+        <Button onClick={handleReset} sx={{ mb: 2 }}>
+          Neu starten
+        </Button>
+      )}
 
       <Conversation steps={steps} isFinished={isFinished} onSelect={selectOption} />
 

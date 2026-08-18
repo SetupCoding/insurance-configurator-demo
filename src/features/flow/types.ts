@@ -15,7 +15,8 @@ export type FlowState = {
   status: FlowStatus;
 };
 
-export type FlowAction = { type: 'selectOption'; stepId: number; value: OptionValue };
+export type FlowAction =
+  { type: 'selectOption'; stepId: number; value: OptionValue } | { type: 'reset' };
 
 /** A collected answer, ready to be submitted. */
 export type Answer = {

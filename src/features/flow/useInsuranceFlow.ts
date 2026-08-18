@@ -42,13 +42,18 @@ export function useInsuranceFlow(flow: Flow) {
     [],
   );
 
+  const reset = useCallback(() => dispatch({ type: 'reset' }), []);
+
   const answers = useMemo(() => selectAnswers(state), [state]);
+  const hasAnswers = state.steps.some((entry) => entry.selectedValue !== null);
 
   return {
     steps: state.steps,
     status: state.status,
     isFinished: state.status === 'completed',
+    hasAnswers,
     answers,
     selectOption,
+    reset,
   };
 }

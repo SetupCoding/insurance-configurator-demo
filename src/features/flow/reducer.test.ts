@@ -85,4 +85,15 @@ describe('flow reducer', () => {
     const next = reducer(initial, { type: 'selectOption', stepId: 100, value: 'nope' });
     expect(next).toBe(initial);
   });
+
+  it('resets back to the first step', () => {
+    const state = run([
+      { stepId: 100, value: false },
+      { stepId: 200, value: false },
+      { stepId: 300, value: 'ekz' },
+    ]);
+
+    const reset = reducer(state, { type: 'reset' });
+    expect(reset).toEqual(initFlowState(flow));
+  });
 });
