@@ -17,9 +17,11 @@ piece to present modern tooling.
 ## What it does
 
 The conversation is a decision tree: each question narrows things down until
-you land on a recommendation. You can go back and change an earlier answer;
-everything after that point gets dropped and replayed, or start over
-completely with the "Neu starten" button. Progress survives a page refresh
+you reach the end, then an explicit "Absenden" button sends the answers
+(nothing submits automatically). You can go back and change an earlier
+answer; everything after that point gets dropped and replayed, or start over
+completely with the "Neu starten" button, which stays fixed in place so it
+never shifts the conversation below it. Progress survives a page refresh
 (it's kept in `sessionStorage`). The toggle in the top-right corner switches
 between a dark theme (the default) and a light one, with the change eased
 rather than an abrupt swap.
@@ -75,6 +77,10 @@ Requires Node 22 and pnpm 10 (see `.nvmrc` and `packageManager` in
 pnpm install     # also activates the Husky git hooks
 pnpm dev         # http://localhost:3000
 ```
+
+That single command is the whole app: answering questions runs entirely in
+the browser, and `pnpm dev` also serves the API routes the final "Absenden"
+submits to, so there's no separate backend to start.
 
 ## Scripts
 
@@ -133,4 +139,4 @@ a preview URL.
 
 ## License
 
-[MIT](LICENSE) © Anton Schmidt
+[MIT](LICENSE) © Anton "Setup" Schmidt
