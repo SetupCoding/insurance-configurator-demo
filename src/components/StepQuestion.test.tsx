@@ -55,7 +55,7 @@ describe('StepQuestion', () => {
     expect(screen.getByRole('button', { name: 'Nein' })).toBeDisabled();
   });
 
-  it('moves focus to the question heading when autoFocus is set', () => {
+  it('moves focus to the first option when autoFocus is set', () => {
     renderWithTheme(
       <StepQuestion
         step={step}
@@ -66,6 +66,6 @@ describe('StepQuestion', () => {
       />,
     );
 
-    expect(screen.getByRole('heading', { name: step.text })).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Ja' })).toHaveFocus();
   });
 });

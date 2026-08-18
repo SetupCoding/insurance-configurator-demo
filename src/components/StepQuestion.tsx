@@ -1,13 +1,7 @@
 'use client';
 
-import {
-  Box,
-  styled,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-  useMediaQuery,
-} from '@mui/material';
+import { Box, styled, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import type { ComponentRef } from 'react';
 import { useEffect, useRef } from 'react';
 
 import type { OptionValue, Step } from '@/lib/schema/flow';
@@ -58,15 +52,15 @@ export function StepQuestion({
   onSelect,
   autoFocus = false,
 }: Props) {
-  const isWide = useMediaQuery('(min-width:600px)');
-  const headingRef = useRef<HTMLHeadingElement>(null);
+  const firstOptionRef = useRef<ComponentRef<typeof ToggleButton>>(null);
 
   useEffect(() => {
     if (!autoFocus) return;
-    // Move focus to the new question so screen-reader users hear it, and bring
-    // it into view. Motion is suppressed when the user prefers reduced motion.
-    headingRef.current?.focus();
-    headingRef.current?.scrollIntoView({
+    // Move focus to the new question's first option (not the heading) so
+    // keyboard users land on the next actionable control, and bring it into
+    // view. Motion is suppressed when the user prefers reduced motion.
+    firstOptionRef.current?.focus();
+    firstOptionRef.current?.scrollIntoView({
       behavior: prefersReducedMotion() ? 'auto' : 'smooth',
       block: 'center',
     });
@@ -74,7 +68,7 @@ export function StepQuestion({
 
   return (
     <Box sx={{ my: 3 }}>
-      <Typography ref={headingRef} tabIndex={-1} variant="h3" gutterBottom>
+      <Typography variant="h3" gutterBottom>
         {step.text}
       </Typography>
       <StyledToggleButtonGroup
@@ -82,11 +76,12 @@ export function StepQuestion({
         exclusive
         aria-label={step.text}
         size="large"
-        orientation={isWide ? 'horizontal' : 'vertical'}
+        orientation={'horizontal'}
       >
-        {step.valueOptions.map((option) => (
+        {step.valueOptions.map((option, index) => (
           <ToggleButton
             key={option.text}
+            ref={index === 0 ? firstOptionRef : undefined}
             value={option.value}
             aria-label={option.text}
             disabled={disabled}
