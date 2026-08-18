@@ -4,9 +4,10 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import './globals.css';
 
+import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import type { Metadata, Viewport } from 'next';
 
-import { THEME_COLOR } from '@/theme/theme';
+import { THEME_COLORS } from '@/theme/theme';
 import { ThemeRegistry } from '@/theme/ThemeRegistry';
 
 import { Providers } from './providers';
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: THEME_COLOR,
+  themeColor: THEME_COLORS,
   width: 'device-width',
   initialScale: 1,
 };
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="de">
       <body>
+        <InitColorSchemeScript attribute="data-mui-color-scheme" defaultMode="dark" />
         <ThemeRegistry>
           <Providers>{children}</Providers>
         </ThemeRegistry>
