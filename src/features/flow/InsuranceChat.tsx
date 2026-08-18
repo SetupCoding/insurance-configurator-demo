@@ -64,8 +64,10 @@ export const InsuranceChat = ({ flow }: Props) => {
           aria-busy={submit.isPending}
           aria-disabled={submit.isPending}
           // The default line-height is looser than the icon is tall, which
-          // otherwise leaves the label sitting visibly above centre next to it.
-          sx={{ mt: 3, lineHeight: 1 }}
+          // otherwise leaves the label sitting visibly above centre next to it;
+          // the remaining ~1px gap is font/glyph-metric asymmetry line-height
+          // alone can't close, measured and nudged away directly.
+          sx={{ mt: 3, lineHeight: 1, '& .MuiButton-startIcon': { position: 'relative', top: -1 } }}
         >
           {submit.isPending ? 'Wird gesendet…' : 'Absenden'}
         </Button>

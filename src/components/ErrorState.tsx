@@ -28,8 +28,10 @@ export const ErrorState = ({ message, onRetry }: Props) => {
           startIcon={<SendIcon />}
           onClick={onRetry}
           // The default line-height is looser than the icon is tall, which
-          // otherwise leaves the label sitting visibly above centre next to it.
-          sx={{ lineHeight: 1 }}
+          // otherwise leaves the label sitting visibly above centre next to it;
+          // the remaining ~1px gap is font/glyph-metric asymmetry line-height
+          // alone can't close, measured and nudged away directly.
+          sx={{ lineHeight: 1, '& .MuiButton-startIcon': { position: 'relative', top: -1 } }}
         >
           Erneut absenden
         </Button>
