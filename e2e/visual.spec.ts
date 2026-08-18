@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { choose, completeFlow, QUESTIONS } from './helpers';
+import { choose, completeFlow, QUESTIONS, toggleColorScheme } from './helpers';
 
 /**
  * Visual regression. Rendering is environment-specific, so these run only on
@@ -31,6 +31,13 @@ test.describe('visual regression @visual', () => {
     await page.goto('/');
     await completeFlow(page);
     await expect(page).toHaveScreenshot('completed.png', options);
+  });
+
+  test('light colour scheme', async ({ page }) => {
+    await page.goto('/');
+    await toggleColorScheme(page);
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page).toHaveScreenshot('light.png', options);
   });
 });
 

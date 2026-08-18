@@ -19,3 +19,8 @@ export async function completeFlow(page: Page) {
   await choose(page, QUESTIONS.licensePlate, 'Einzelkennzeichen');
   await expect(page.getByText('Herzlichen Dank für Ihre Angaben!')).toBeVisible();
 }
+
+/** Switches the colour scheme via the toggle button (dark is the default). */
+export async function toggleColorScheme(page: Page) {
+  await page.getByRole('button', { name: /Design wechseln/ }).click();
+}
