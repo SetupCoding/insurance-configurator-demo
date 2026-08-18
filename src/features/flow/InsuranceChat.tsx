@@ -1,7 +1,8 @@
 'use client';
 
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import SendIcon from '@mui/icons-material/Send';
 import { Box, Button, Container, Typography } from '@mui/material';
-import { useEffect } from 'react';
 
 import { Conversation, ErrorState, LoadingIndicator } from '@/components';
 import type { Flow } from '@/lib/schema/flow';
@@ -13,23 +14,25 @@ type Props = {
   flow: Flow;
 };
 
+// Fixed, so appearing once an answer exists never shifts the conversation
+// below it (matching the theme toggle's corner in the top-right).
+const resetSx = {
+  position: 'fixed',
+  top: 16,
+  left: 16,
+  zIndex: 'tooltip',
+} as const;
+
 /**
- * Top-level client component for the conversation. Owns the flow state, submits
- * the answers once the flow completes, and surfaces loading, success and error
- * feedback (with a retry).
+ * Top-level client component for the conversation. Owns the flow state and
+ * submits the answers once the user confirms, surfacing loading, success and
+ * error feedback (with a retry).
  */
 export function InsuranceChat({ flow }: Props) {
   const { steps, isFinished, hasAnswers, answers, selectOption, reset } = useInsuranceFlow(flow);
   const submit = useSubmitAnswers();
 
   const { mutate } = submit;
-  useEffect(() => {
-    if (isFinished) {
-      mutate(answers);
-    }
-    // Submit exactly once per completion; `answers` are final when finished.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFinished]);
 
   const handleReset = () => {
     submit.reset();
@@ -48,12 +51,23 @@ export function InsuranceChat({ flow }: Props) {
       </Typography>
 
       {hasAnswers && (
-        <Button onClick={handleReset} sx={{ mb: 2 }}>
+        <Button onClick={handleReset} startIcon={<RestartAltIcon />} size="small" sx={resetSx}>
           Neu starten
         </Button>
       )}
 
       <Conversation steps={steps} isFinished={isFinished} onSelect={selectOption} />
+
+      {isFinished && submit.isIdle && (
+        <Button
+          variant="contained"
+          startIcon={<SendIcon />}
+          onClick={() => mutate(answers)}
+          sx={{ mt: 3 }}
+        >
+          Absenden
+        </Button>
+      )}
 
       <LoadingIndicator isLoading={submit.isPending} />
 

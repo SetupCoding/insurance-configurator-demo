@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { choose, QUESTIONS } from './helpers';
+import { answerFlow, choose, QUESTIONS } from './helpers';
 
 test('shows the first question on load', async ({ page }) => {
   await page.goto('/');
@@ -10,12 +10,22 @@ test('shows the first question on load', async ({ page }) => {
   await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeHidden();
 });
 
+test('does not submit until "Absenden" is clicked', async ({ page }) => {
+  await page.goto('/');
+
+  await answerFlow(page);
+
+  await expect(page.getByRole('button', { name: 'Absenden' })).toBeVisible();
+  await expect(page.getByText('Herzlichen Dank für Ihre Angaben!')).toBeHidden();
+});
+
 test('walks through the flow to a thank-you message', async ({ page }) => {
   await page.goto('/');
 
   await choose(page, QUESTIONS.liability, 'Ja');
   await choose(page, QUESTIONS.casco, 'Nein');
   await choose(page, QUESTIONS.licensePlate, 'Einzelkennzeichen');
+  await page.getByRole('button', { name: 'Absenden' }).click();
 
   await expect(page.getByText('Herzlichen Dank für Ihre Angaben!')).toBeVisible();
 });
@@ -41,6 +51,7 @@ test('shows an error and recovers when submission fails then succeeds', async ({
   await choose(page, QUESTIONS.liability, 'Nein');
   await choose(page, QUESTIONS.casco, 'Nein');
   await choose(page, QUESTIONS.licensePlate, 'Einzelkennzeichen');
+  await page.getByRole('button', { name: 'Absenden' }).click();
 
   await expect(page.getByText('Ein Fehler ist aufgetreten.')).toBeVisible();
 

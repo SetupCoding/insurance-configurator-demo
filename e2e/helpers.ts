@@ -12,11 +12,17 @@ export async function choose(page: Page, question: string, option: string) {
   await page.getByRole('group', { name: question }).getByRole('button', { name: option }).click();
 }
 
-/** Walks the flow to completion and waits for the thank-you message. */
-export async function completeFlow(page: Page) {
+/** Answers every question along a fixed path. Does not submit. */
+export async function answerFlow(page: Page) {
   await choose(page, QUESTIONS.liability, 'Nein');
   await choose(page, QUESTIONS.casco, 'Nein');
   await choose(page, QUESTIONS.licensePlate, 'Einzelkennzeichen');
+}
+
+/** Walks the flow to completion, submits it, and waits for the thank-you message. */
+export async function completeFlow(page: Page) {
+  await answerFlow(page);
+  await page.getByRole('button', { name: 'Absenden' }).click();
   await expect(page.getByText('Herzlichen Dank für Ihre Angaben!')).toBeVisible();
 }
 

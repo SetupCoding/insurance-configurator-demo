@@ -29,7 +29,7 @@ async function choose(stepText: string, optionName: string) {
   await userEvent.click(within(group).getByRole('button', { name: optionName }));
 }
 
-/** Walks the flow to completion along a fixed path. */
+/** Walks the flow to completion along a fixed path. Does not submit. */
 async function completeFlow() {
   await choose('Benötigen Sie eine Haftpflichtversicherung?', 'Ja');
   await choose('Benötigen Sie eine Kasko?', 'Ja');
@@ -37,13 +37,29 @@ async function completeFlow() {
   await choose('Welche Kennzeichenart benötigen Sie?', 'Einzelkennzeichen');
 }
 
+/** Walks the flow to completion and submits it. */
+async function submitFlow() {
+  await completeFlow();
+  await userEvent.click(screen.getByRole('button', { name: 'Absenden' }));
+}
+
 describe('InsuranceChat', () => {
-  it('submits the answers and shows a thank-you message on success', async () => {
+  it('does not submit automatically once every question is answered', async () => {
     renderChat(<InsuranceChat flow={flow} />);
 
     await completeFlow();
 
+    expect(screen.getByRole('button', { name: 'Absenden' })).toBeInTheDocument();
+    expect(screen.queryByText(/Herzlichen Dank für Ihre Angaben!/i)).not.toBeInTheDocument();
+  });
+
+  it('submits the answers and shows a thank-you message when "Absenden" is clicked', async () => {
+    renderChat(<InsuranceChat flow={flow} />);
+
+    await submitFlow();
+
     expect(await screen.findByText(/Herzlichen Dank für Ihre Angaben!/i)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Absenden' })).not.toBeInTheDocument();
   });
 
   it('hides the reset button before any answer is given', () => {
@@ -72,7 +88,7 @@ describe('InsuranceChat', () => {
     );
 
     renderChat(<InsuranceChat flow={flow} />);
-    await completeFlow();
+    await submitFlow();
 
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent('Ein Fehler ist aufgetreten.');
