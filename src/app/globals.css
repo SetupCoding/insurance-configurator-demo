@@ -4,8 +4,12 @@ body {
   margin: 0;
 }
 
-/* Smooths the colour scheme switch instead of an abrupt swap. */
 body {
+  /* A soft, fixed-colour glow so the page reads as a solid colour rather
+     than fully flat, without needing to change (and re-transition) it per
+     colour scheme: only background-color below differs between schemes. */
+  background-image: radial-gradient(circle at 15% -10%, rgba(88, 166, 255, 0.15), transparent 55%);
+  /* Smooths the colour scheme switch instead of an abrupt swap. */
   transition:
     background-color 200ms ease,
     color 200ms ease;
