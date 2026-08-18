@@ -19,10 +19,13 @@ piece to present modern tooling.
 The conversation is a decision tree: each question narrows things down until
 you land on a recommendation. You can go back and change an earlier answer;
 everything after that point gets dropped and replayed. Progress survives a
-page refresh (it's kept in `sessionStorage`). Keyboard focus moves to each new
-question as it appears, and the whole thing has been checked against axe for
-WCAG 2.0/2.1 A/AA violations, including under Windows forced-colors
-(high-contrast) mode.
+page refresh (it's kept in `sessionStorage`). The toggle in the top-right
+corner switches between a dark theme (the default) and a light one.
+
+Keyboard focus moves to each new question as it appears, every interactive
+control gets the same visible focus ring, and the whole thing has been
+checked against axe for WCAG 2.0/2.1 A/AA violations in both colour schemes,
+including under Windows forced-colors (high-contrast) mode.
 
 Every piece of data, the bundled flow fixture and the payload sent to
 `/api/conversation`, is validated at runtime with the same [Zod](https://zod.dev/)
@@ -56,7 +59,8 @@ API call for the flow definition either; it ships bundled with the app.
 
 The reasoning behind these choices, and a few others (why TanStack Query and
 MSW over a generated client, why fonts are self-hosted, why visual tests run
-outside the CI gate), is written up in [docs/adr/](docs/adr/).
+outside the CI gate, why the colour scheme is manually switched rather than
+following `prefers-color-scheme` alone), is written up in [docs/adr/](docs/adr/).
 
 ## Getting started
 
@@ -92,7 +96,7 @@ files.
 ## Testing
 
 ```bash
-pnpm test:coverage                     # unit tests, ~91% line coverage
+pnpm test:coverage                     # unit tests, ~93% line coverage
 pnpm exec playwright install           # once, to fetch browser binaries
 pnpm test:e2e                          # flow and accessibility, 3 browsers
 pnpm test:visual                       # pixel snapshots, see docs/adr/0007
