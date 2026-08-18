@@ -22,6 +22,26 @@ test('does not submit until "Absenden" is clicked, and answers stay editable', a
   ).toBeEnabled();
 });
 
+test('confirms before resetting the conversation', async ({ page }) => {
+  await page.goto('/');
+
+  await choose(page, QUESTIONS.liability, 'Ja');
+  await page.getByRole('button', { name: 'Neu starten' }).click();
+
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+
+  // Cancelling leaves the conversation untouched.
+  await dialog.getByRole('button', { name: 'Abbrechen' }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeVisible();
+
+  // Confirming resets to the first question.
+  await page.getByRole('button', { name: 'Neu starten' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Neu starten' }).click();
+  await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeHidden();
+});
+
 test('walks through the flow to a thank-you message', async ({ page }) => {
   await page.goto('/');
 

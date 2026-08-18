@@ -1,27 +1,18 @@
 'use client';
 
-import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import SendIcon from '@mui/icons-material/Send';
 import { Box, Button, CircularProgress, Container, Typography } from '@mui/material';
 
 import { Conversation, ErrorState } from '@/components';
 import type { Flow } from '@/lib/schema/flow';
 
+import { ResetButton } from './ResetButton';
 import { useInsuranceFlow } from './useInsuranceFlow';
 import { useSubmitAnswers } from './useSubmitAnswers';
 
 type Props = {
   flow: Flow;
 };
-
-// Fixed, so appearing once an answer exists never shifts the conversation
-// below it (matching the theme toggle's corner in the top-right).
-const resetSx = {
-  position: 'fixed',
-  top: 16,
-  left: 16,
-  zIndex: 'tooltip',
-} as const;
 
 /**
  * Top-level client component for the conversation. Owns the flow state and
@@ -50,11 +41,7 @@ export function InsuranceChat({ flow }: Props) {
         Versicherungs-Helfer
       </Typography>
 
-      {hasAnswers && (
-        <Button onClick={handleReset} startIcon={<RestartAltIcon />} size="small" sx={resetSx}>
-          Neu starten
-        </Button>
-      )}
+      {hasAnswers && <ResetButton onConfirm={handleReset} />}
 
       {/* Once every question is answered, submission still needs an explicit
           "Absenden" click, so earlier answers stay editable until then; only

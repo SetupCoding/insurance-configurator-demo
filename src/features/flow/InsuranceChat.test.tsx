@@ -102,11 +102,13 @@ describe('InsuranceChat', () => {
     expect(screen.queryByRole('button', { name: 'Neu starten' })).not.toBeInTheDocument();
   });
 
-  it('resets to the first question when "Neu starten" is clicked', async () => {
+  it('resets to the first question once "Neu starten" is confirmed', async () => {
     renderChat(<InsuranceChat flow={flow} />);
 
     await choose('Benötigen Sie eine Haftpflichtversicherung?', 'Ja');
     await userEvent.click(screen.getByRole('button', { name: 'Neu starten' }));
+    const dialog = screen.getByRole('dialog');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Neu starten' }));
 
     expect(
       screen.getByRole('heading', { name: 'Benötigen Sie eine Haftpflichtversicherung?' }),

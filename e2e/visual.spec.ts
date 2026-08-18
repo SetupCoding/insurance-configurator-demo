@@ -39,6 +39,14 @@ test.describe('visual regression @visual', () => {
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page).toHaveScreenshot('light.png', options);
   });
+
+  test('reset confirmation dialog', async ({ page }) => {
+    await page.goto('/');
+    await choose(page, QUESTIONS.liability, 'Ja');
+    await page.getByRole('button', { name: 'Neu starten' }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await expect(page).toHaveScreenshot('reset-dialog.png', options);
+  });
 });
 
 test.describe('forced-colors @visual', () => {

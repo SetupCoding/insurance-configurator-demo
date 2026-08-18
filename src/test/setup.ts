@@ -27,3 +27,15 @@ if (!window.matchMedia) {
 
 // jsdom does not implement scrollIntoView, used for focus management.
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
+
+// jsdom's <dialog> is an empty stub with no showModal/close, used for the
+// reset confirmation dialog. Toggling the `open` attribute is enough for
+// Testing Library's role queries to see it appear and disappear.
+if (!window.HTMLDialogElement.prototype.showModal) {
+  window.HTMLDialogElement.prototype.showModal = function () {
+    this.setAttribute('open', '');
+  };
+  window.HTMLDialogElement.prototype.close = function () {
+    this.removeAttribute('open');
+  };
+}
