@@ -18,13 +18,15 @@ piece to present modern tooling.
 
 The conversation is a decision tree: each question narrows things down until
 you reach the end, then an explicit "Absenden" button sends the answers
-(nothing submits automatically). You can go back and change an earlier
-answer; everything after that point gets dropped and replayed, or start over
+(nothing submits automatically, and earlier answers stay editable right up
+until it's clicked). You can go back and change an earlier answer;
+everything after that point gets dropped and replayed, or start over
 completely with the "Neu starten" button, which stays fixed in place so it
-never shifts the conversation below it. Progress survives a page refresh
-(it's kept in `sessionStorage`). The toggle in the top-right corner switches
-between a dark theme (the default) and a light one, with the change eased
-rather than an abrupt swap.
+never shifts the conversation below it and asks for confirmation (a native
+`<dialog>`) before actually discarding anything. Progress survives a page
+refresh (it's kept in `sessionStorage`). The toggle in the top-right corner
+switches between a dark theme (the default) and a light one, with the change
+eased rather than an abrupt swap.
 
 A skip link lets keyboard users jump straight past the toggle to the
 conversation, focus moves to the next question's first option as it appears
