@@ -29,6 +29,9 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
     // intentionally differs from what the server rendered.
     <html lang="de" suppressHydrationWarning>
       <body>
+        <a href="#main-content" className="skip-link">
+          Zum Inhalt springen
+        </a>
         <InitColorSchemeScript attribute="data-mui-color-scheme" defaultMode="dark" />
         <ThemeRegistry>
           <Providers>{children}</Providers>

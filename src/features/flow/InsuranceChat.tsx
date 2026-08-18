@@ -32,7 +32,12 @@ export function InsuranceChat({ flow }: Props) {
   }, [isFinished]);
 
   return (
-    <Container maxWidth="md" component="main" sx={{ py: { xs: 4, md: 6 }, textAlign: 'center' }}>
+    <Container
+      maxWidth="md"
+      component="main"
+      id="main-content"
+      sx={{ py: { xs: 4, md: 6 }, textAlign: 'center' }}
+    >
       <Typography variant="h2" gutterBottom>
         Versicherungs-Helfer
       </Typography>
