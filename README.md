@@ -18,14 +18,18 @@ piece to present modern tooling.
 
 The conversation is a decision tree: each question narrows things down until
 you land on a recommendation. You can go back and change an earlier answer;
-everything after that point gets dropped and replayed. Progress survives a
-page refresh (it's kept in `sessionStorage`). The toggle in the top-right
-corner switches between a dark theme (the default) and a light one.
+everything after that point gets dropped and replayed, or start over
+completely with the "Neu starten" button. Progress survives a page refresh
+(it's kept in `sessionStorage`). The toggle in the top-right corner switches
+between a dark theme (the default) and a light one, with the change eased
+rather than an abrupt swap.
 
-Keyboard focus moves to each new question as it appears, every interactive
-control gets the same visible focus ring, and the whole thing has been
-checked against axe for WCAG 2.0/2.1 A/AA violations in both colour schemes,
-including under Windows forced-colors (high-contrast) mode.
+A skip link lets keyboard users jump straight past the toggle to the
+conversation, focus moves to the next question's first option as it appears
+(not a heading, so keyboard users land on something actionable), and every
+interactive control gets the same visible focus ring. The whole thing has
+been checked against axe for WCAG 2.0/2.1 A/AA violations in both colour
+schemes, including under Windows forced-colors (high-contrast) mode.
 
 Every piece of data, the bundled flow fixture and the payload sent to
 `/api/conversation`, is validated at runtime with the same [Zod](https://zod.dev/)
