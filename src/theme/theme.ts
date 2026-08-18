@@ -49,6 +49,20 @@ const baseTheme = createTheme({
         variantMapping: { h2: 'h1', h3: 'h2' },
       },
     },
+    // MuiButtonBase removes the native focus outline unconditionally, and
+    // leaves it up to each component to supply one. Setting it once here
+    // gives every button, toggle and icon button the same focus ring instead
+    // of each needing its own.
+    MuiButtonBase: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          '&.Mui-focusVisible': {
+            outline: `2px solid ${theme.palette.primary.main}`,
+            outlineOffset: 2,
+          },
+        }),
+      },
+    },
   },
 });
 

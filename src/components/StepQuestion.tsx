@@ -24,14 +24,10 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
       border: `1px solid ${theme.palette.divider}`,
     },
     // Forced-colors mode (Windows high contrast) strips the background tint
-    // that normally shows a selected option, and MUI's ButtonBase removes the
-    // native focus outline by design, so both states need an explicit one here.
+    // that normally shows a selected option. Focus itself is covered by the
+    // theme-wide MuiButtonBase focus ring; this only needs to cover selection.
     '@media (forced-colors: active)': {
       '&.Mui-selected': {
-        outline: '2px solid Highlight',
-        outlineOffset: 2,
-      },
-      '&.Mui-focusVisible': {
         outline: '2px solid Highlight',
         outlineOffset: 2,
       },
