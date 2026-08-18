@@ -4,6 +4,19 @@ body {
   margin: 0;
 }
 
+/* Smooths the colour scheme switch instead of an abrupt swap. */
+body {
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+}
+
 .skip-link {
   position: absolute;
   top: -999px;

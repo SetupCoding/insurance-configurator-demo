@@ -23,4 +23,8 @@ export async function completeFlow(page: Page) {
 /** Switches the colour scheme via the toggle button (dark is the default). */
 export async function toggleColorScheme(page: Page) {
   await page.getByRole('button', { name: /Design wechseln/ }).click();
+  // Let the background-colour transition settle: axe can otherwise sample a
+  // transient, low-contrast colour mid-transition, and a screenshot taken
+  // here would be flaky.
+  await page.waitForTimeout(250);
 }
