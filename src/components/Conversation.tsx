@@ -9,12 +9,13 @@ import { StepQuestion } from './StepQuestion';
 
 type Props = {
   steps: AnsweredStep[];
-  isFinished: boolean;
+  /** Whether every option should be disabled, e.g. while submitting. */
+  disabled: boolean;
   onSelect: (stepId: number, value: OptionValue) => void;
 };
 
 /** Renders the ordered list of questions that make up the conversation. */
-export function Conversation({ steps, isFinished, onSelect }: Props) {
+export function Conversation({ steps, disabled, onSelect }: Props) {
   return (
     <Box sx={{ width: '100%' }}>
       {steps.map(({ step, selectedValue }, index) => (
@@ -22,7 +23,7 @@ export function Conversation({ steps, isFinished, onSelect }: Props) {
           key={step.id}
           step={step}
           selectedValue={selectedValue}
-          disabled={isFinished}
+          disabled={disabled}
           onSelect={(value) => onSelect(step.id, value)}
           autoFocus={index > 0}
         />

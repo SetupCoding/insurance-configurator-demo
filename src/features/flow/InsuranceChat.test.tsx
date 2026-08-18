@@ -62,7 +62,7 @@ describe('InsuranceChat', () => {
     expect(screen.queryByRole('button', { name: 'Absenden' })).not.toBeInTheDocument();
   });
 
-  it('marks the submit button busy while the request is in flight', async () => {
+  it('marks the submit button busy and locks earlier answers while in flight', async () => {
     server.use(
       http.post('*/api/conversation', async () => {
         await delay(50);
@@ -78,7 +78,23 @@ describe('InsuranceChat', () => {
     expect(pendingButton).toHaveAttribute('aria-busy', 'true');
     expect(pendingButton).toHaveAttribute('aria-disabled', 'true');
 
+    const firstGroup = screen.getByRole('group', {
+      name: 'Benötigen Sie eine Haftpflichtversicherung?',
+    });
+    expect(within(firstGroup).getByRole('button', { name: 'Ja' })).toBeDisabled();
+
     expect(await screen.findByText(/Herzlichen Dank für Ihre Angaben!/i)).toBeInTheDocument();
+  });
+
+  it('keeps earlier answers editable once finished but before submitting', async () => {
+    renderChat(<InsuranceChat flow={flow} />);
+
+    await completeFlow();
+
+    const firstGroup = screen.getByRole('group', {
+      name: 'Benötigen Sie eine Haftpflichtversicherung?',
+    });
+    expect(within(firstGroup).getByRole('button', { name: 'Ja' })).not.toBeDisabled();
   });
 
   it('hides the reset button before any answer is given', () => {

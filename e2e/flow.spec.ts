@@ -10,13 +10,16 @@ test('shows the first question on load', async ({ page }) => {
   await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeHidden();
 });
 
-test('does not submit until "Absenden" is clicked', async ({ page }) => {
+test('does not submit until "Absenden" is clicked, and answers stay editable', async ({ page }) => {
   await page.goto('/');
 
   await answerFlow(page);
 
   await expect(page.getByRole('button', { name: 'Absenden' })).toBeVisible();
   await expect(page.getByText('Herzlichen Dank für Ihre Angaben!')).toBeHidden();
+  await expect(
+    page.getByRole('group', { name: QUESTIONS.liability }).getByRole('button', { name: 'Ja' }),
+  ).toBeEnabled();
 });
 
 test('walks through the flow to a thank-you message', async ({ page }) => {

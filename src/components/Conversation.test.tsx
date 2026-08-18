@@ -36,7 +36,7 @@ const steps: AnsweredStep[] = [
 
 describe('Conversation', () => {
   it('renders every visible step as a question', () => {
-    renderWithTheme(<Conversation steps={steps} isFinished={false} onSelect={vi.fn()} />);
+    renderWithTheme(<Conversation steps={steps} disabled={false} onSelect={vi.fn()} />);
 
     expect(screen.getByRole('heading', { name: 'Frage eins?' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Frage zwei?' })).toBeInTheDocument();
@@ -44,19 +44,19 @@ describe('Conversation', () => {
 
   it('reports the step id and value when an option is chosen', async () => {
     const onSelect = vi.fn();
-    renderWithTheme(<Conversation steps={steps} isFinished={false} onSelect={onSelect} />);
+    renderWithTheme(<Conversation steps={steps} disabled={false} onSelect={onSelect} />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Option A' }));
     expect(onSelect).toHaveBeenCalledWith(200, 'a');
   });
 
   it('moves focus to the first option of a newly revealed question (not the first)', () => {
-    renderWithTheme(<Conversation steps={steps} isFinished={false} onSelect={vi.fn()} />);
+    renderWithTheme(<Conversation steps={steps} disabled={false} onSelect={vi.fn()} />);
     expect(screen.getByRole('button', { name: 'Option A' })).toHaveFocus();
   });
 
-  it('disables all options once the flow is finished', () => {
-    renderWithTheme(<Conversation steps={steps} isFinished onSelect={vi.fn()} />);
+  it('disables all options when disabled', () => {
+    renderWithTheme(<Conversation steps={steps} disabled onSelect={vi.fn()} />);
 
     for (const button of screen.getAllByRole('button')) {
       expect(button).toBeDisabled();

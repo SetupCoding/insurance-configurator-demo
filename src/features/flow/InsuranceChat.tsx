@@ -56,7 +56,14 @@ export function InsuranceChat({ flow }: Props) {
         </Button>
       )}
 
-      <Conversation steps={steps} isFinished={isFinished} onSelect={selectOption} />
+      {/* Once every question is answered, submission still needs an explicit
+          "Absenden" click, so earlier answers stay editable until then; only
+          an in-flight request or a completed submission locks them. */}
+      <Conversation
+        steps={steps}
+        disabled={submit.isPending || submit.isSuccess}
+        onSelect={selectOption}
+      />
 
       {isFinished && (submit.isIdle || submit.isPending) && (
         <Button
