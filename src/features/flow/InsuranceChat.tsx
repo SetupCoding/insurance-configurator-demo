@@ -62,7 +62,12 @@ export const InsuranceChat = ({ flow }: Props) => {
           <Button
             variant="contained"
             startIcon={
-              submit.isPending ? <CircularProgress size={16} color="inherit" /> : <SendIcon />
+              // Button forces its startIcon to 20px for a medium button via
+              // font-size (which SendIcon follows); CircularProgress ignores
+              // font-size and sizes itself from this prop directly, so it
+              // has to be given the same 20px to keep the button's height
+              // from shrinking while a submission is pending.
+              submit.isPending ? <CircularProgress size={20} color="inherit" /> : <SendIcon />
             }
             onClick={() => {
               if (!submit.isPending) mutate(answers);
