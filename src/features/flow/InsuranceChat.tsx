@@ -20,8 +20,12 @@ type Props = {
  * error feedback (with a retry).
  */
 export const InsuranceChat = ({ flow }: Props) => {
-  const { steps, isFinished, hasAnswers, answers, selectOption, reset } = useInsuranceFlow(flow);
   const submission = useSubmitAnswers();
+  // Once the answers are accepted the conversation is over, so the stored copy
+  // goes away while the result stays on screen until reset or reload.
+  const { steps, isFinished, hasAnswers, answers, selectOption, reset } = useInsuranceFlow(flow, {
+    persist: !submission.isSuccess,
+  });
 
   const handleReset = () => {
     // Resetting during a submission aborts it, so a response already on the

@@ -4,15 +4,18 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 
 import type { Flow, OptionValue } from '@/lib/schema/flow';
 
-import { loadSelections, saveSelections } from './persistence';
+import { clearSelections, loadSelections, saveSelections } from './persistence';
 import { createFlowReducer, initFlowState, selectAnswers, selectSelections } from './reducer';
 
 /**
  * Drives the insurance conversation. Wraps the pure flow state machine in a
  * `useReducer`, restores any previously answered steps after mount, and
  * persists progress so a refresh does not lose the user's answers.
+ *
+ * Pass `persist: false` once the conversation is over, which drops the stored
+ * answers instead of leaving them behind.
  */
-export function useInsuranceFlow(flow: Flow) {
+export function useInsuranceFlow(flow: Flow, { persist = true }: { persist?: boolean } = {}) {
   const reducer = useMemo(() => createFlowReducer(flow), [flow]);
   const [state, dispatch] = useReducer(reducer, flow, initFlowState);
   const [hydrated, setHydrated] = useState(false);
@@ -34,8 +37,14 @@ export function useInsuranceFlow(flow: Flow) {
   // saved progress.
   useEffect(() => {
     if (!hydrated) return;
+    if (!persist) {
+      // A submitted conversation is finished. Leaving it stored would let a
+      // reload restore a completed flow that then offers to submit again.
+      clearSelections();
+      return;
+    }
     saveSelections(selectSelections(state));
-  }, [hydrated, state]);
+  }, [hydrated, persist, state]);
 
   const selectOption = useCallback(
     (stepId: number, value: OptionValue) => dispatch({ type: 'selectOption', stepId, value }),

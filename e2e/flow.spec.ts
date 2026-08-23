@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { answerFlow, choose, QUESTIONS } from './helpers';
+import { answerFlow, choose, completeFlow, QUESTIONS } from './helpers';
 
 test('shows the first question on load', async ({ page }) => {
   await page.goto('/');
@@ -106,6 +106,29 @@ test('has no horizontal overflow on a narrow viewport', async ({ page }) => {
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(overflow).toBeLessThanOrEqual(320);
+});
+
+test('keeps unanswered progress across a reload', async ({ page }) => {
+  await page.goto('/');
+  await choose(page, QUESTIONS.liability, 'Ja');
+
+  await page.reload();
+
+  await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeVisible();
+});
+
+test('starts a fresh conversation after reloading a submitted one', async ({ page }) => {
+  await page.goto('/');
+  await completeFlow(page);
+
+  await page.reload();
+
+  // The submitted answers are gone from storage, so the reload cannot restore
+  // a finished conversation that offers to submit itself again.
+  await expect(page.getByRole('heading', { name: QUESTIONS.liability })).toBeVisible();
+  await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Absenden' })).toBeHidden();
+  await expect(page.getByRole('heading', { name: 'Ihre Demo-Konfiguration' })).toBeHidden();
 });
 
 test('shows an error and recovers when submission fails then succeeds', async ({ page }) => {

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { getFlow } from '@/lib/data/flow';
 
-import { saveSelections } from './persistence';
+import { loadSelections, saveSelections } from './persistence';
 import { useInsuranceFlow } from './useInsuranceFlow';
 
 const flow = getFlow();
@@ -45,6 +45,20 @@ describe('useInsuranceFlow', () => {
     const { result } = renderHook(() => useInsuranceFlow(flow));
     expect(result.current.steps.map((s) => s.step.id)).toEqual([100, 200]);
     expect(result.current.steps[0].selectedValue).toBe(false);
+  });
+
+  it('drops the persisted selections when persistence is switched off', () => {
+    const { result, rerender } = renderHook(({ persist }) => useInsuranceFlow(flow, { persist }), {
+      initialProps: { persist: true },
+    });
+    act(() => result.current.selectOption(100, true));
+    expect(loadSelections()).toHaveLength(1);
+
+    // What the submitted state does: the answers stay on screen, but a reload
+    // must not restore a finished conversation that offers to submit again.
+    rerender({ persist: false });
+    expect(loadSelections()).toEqual([]);
+    expect(result.current.steps.map((s) => s.step.id)).toEqual([100, 200]);
   });
 
   it('reports hasAnswers once an option has been selected', () => {
