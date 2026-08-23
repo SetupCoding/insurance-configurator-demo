@@ -34,10 +34,7 @@ export const stepSchema = z.object({
   valueOptions: z.array(valueOptionSchema).min(1),
 });
 
-export type ValueType = z.infer<typeof valueTypeSchema>;
-export type UiType = z.infer<typeof uiTypeSchema>;
 export type OptionValue = z.infer<typeof optionValueSchema>;
-export type NextId = z.infer<typeof nextIdSchema>;
 export type ValueOption = z.infer<typeof valueOptionSchema>;
 export type Step = z.infer<typeof stepSchema>;
 

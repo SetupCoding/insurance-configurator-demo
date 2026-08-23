@@ -16,5 +16,4 @@ export const answerSchema = z.object({
 
 export const submissionSchema = z.array(answerSchema).min(1);
 
-export type SubmissionAnswer = z.infer<typeof answerSchema>;
 export type Submission = z.infer<typeof submissionSchema>;

@@ -73,13 +73,7 @@ export const StepQuestion = ({
       <Typography variant="h3" gutterBottom sx={{ overflowWrap: 'break-word' }}>
         {step.text}
       </Typography>
-      <StyledToggleButtonGroup
-        value={selectedValue}
-        exclusive
-        aria-label={step.text}
-        size="large"
-        orientation={'horizontal'}
-      >
+      <StyledToggleButtonGroup value={selectedValue} exclusive aria-label={step.text} size="large">
         {step.valueOptions.map((option, index) => (
           <ToggleButton
             key={option.text}

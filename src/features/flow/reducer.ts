@@ -1,4 +1,4 @@
-import type { Flow, OptionValue, Step } from '@/lib/schema/flow';
+import type { Flow, Step } from '@/lib/schema/flow';
 
 import type { Answer, FlowAction, FlowState, Selection } from './types';
 
@@ -66,7 +66,7 @@ export function selectAnswers(state: FlowState): Answer[] {
   const answers: Answer[] = [];
   for (const entry of state.steps) {
     if (entry.selectedValue !== null) {
-      answers.push({ name: entry.step.name, value: entry.selectedValue as OptionValue });
+      answers.push({ name: entry.step.name, value: entry.selectedValue });
     }
   }
   return answers;
@@ -77,7 +77,7 @@ export function selectSelections(state: FlowState): Selection[] {
   const selections: Selection[] = [];
   for (const entry of state.steps) {
     if (entry.selectedValue !== null) {
-      selections.push({ stepId: entry.step.id, value: entry.selectedValue as OptionValue });
+      selections.push({ stepId: entry.step.id, value: entry.selectedValue });
     }
   }
   return selections;

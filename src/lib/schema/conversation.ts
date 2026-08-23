@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { submissionSchema } from './answer';
 import { optionValueSchema } from './flow';
 
 /**
@@ -43,10 +42,6 @@ export const errorResponseSchema = z.object({
   detail: z.string().optional(),
 });
 
-export const conversationRequestSchema = submissionSchema;
-
 export type ConfigurationEntry = z.infer<typeof configurationEntrySchema>;
 export type Configuration = z.infer<typeof configurationSchema>;
-export type AcceptedResponse = z.infer<typeof acceptedResponseSchema>;
 export type ErrorCode = z.infer<typeof errorCodeSchema>;
-export type ErrorResponse = z.infer<typeof errorResponseSchema>;
