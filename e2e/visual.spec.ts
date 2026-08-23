@@ -7,11 +7,14 @@ import { choose, completeFlow, QUESTIONS, toggleColorScheme } from './helpers';
  * Chromium and are executed in a pinned Playwright container (see the visual
  * workflow) rather than in the main CI gate. Regenerate baselines with
  * `pnpm test:visual --update-snapshots` in that same container.
+ *
+ * The tolerance is the global 2% from playwright.config.ts. These used to allow
+ * 5% each, which is enough to hide a whole control changing.
  */
 test.describe('visual regression @visual', () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'baselines are Chromium-only');
 
-  const options = { fullPage: true, maxDiffPixelRatio: 0.05 } as const;
+  const options = { fullPage: true } as const;
 
   test('initial page', async ({ page }) => {
     await page.goto('/');
@@ -64,7 +67,7 @@ test.describe('forced-colors @visual', () => {
     'forced-colors emulation is Chromium-only',
   );
 
-  const options = { fullPage: true, maxDiffPixelRatio: 0.05 } as const;
+  const options = { fullPage: true } as const;
 
   test('initial page', async ({ page }) => {
     await page.emulateMedia({ forcedColors: 'active' });
