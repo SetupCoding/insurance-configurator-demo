@@ -19,11 +19,11 @@ export async function answerFlow(page: Page) {
   await choose(page, QUESTIONS.licensePlate, 'Einzelkennzeichen');
 }
 
-/** Walks the flow to completion, submits it, and waits for the thank-you message. */
+/** Walks the flow to completion, submits it, and waits for the result. */
 export async function completeFlow(page: Page) {
   await answerFlow(page);
   await page.getByRole('button', { name: 'Absenden' }).click();
-  await expect(page.getByText('Herzlichen Dank für Ihre Angaben!')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ihre Demo-Konfiguration' })).toBeVisible();
 }
 
 /** Switches the colour scheme via the toggle button (dark is the default). */

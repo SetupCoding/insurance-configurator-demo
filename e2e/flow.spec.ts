@@ -5,7 +5,9 @@ import { answerFlow, choose, QUESTIONS } from './helpers';
 test('shows the first question on load', async ({ page }) => {
   await page.goto('/');
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Versicherungs-Helfer' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Versicherungs-Konfigurator' }),
+  ).toBeVisible();
   await expect(page.getByRole('heading', { name: QUESTIONS.liability })).toBeVisible();
   await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeHidden();
 });
@@ -16,7 +18,7 @@ test('does not submit until "Absenden" is clicked, and answers stay editable', a
   await answerFlow(page);
 
   await expect(page.getByRole('button', { name: 'Absenden' })).toBeVisible();
-  await expect(page.getByText('Herzlichen Dank für Ihre Angaben!')).toBeHidden();
+  await expect(page.getByRole('heading', { name: 'Ihre Demo-Konfiguration' })).toBeHidden();
   await expect(
     page.getByRole('group', { name: QUESTIONS.liability }).getByRole('button', { name: 'Ja' }),
   ).toBeEnabled();
@@ -42,7 +44,7 @@ test('confirms before resetting the conversation', async ({ page }) => {
   await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeHidden();
 });
 
-test('walks through the flow to a thank-you message', async ({ page }) => {
+test('walks through the flow to the validated configuration', async ({ page }) => {
   await page.goto('/');
 
   await choose(page, QUESTIONS.liability, 'Ja');
@@ -50,7 +52,7 @@ test('walks through the flow to a thank-you message', async ({ page }) => {
   await choose(page, QUESTIONS.licensePlate, 'Einzelkennzeichen');
   await page.getByRole('button', { name: 'Absenden' }).click();
 
-  await expect(page.getByText('Herzlichen Dank für Ihre Angaben!')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ihre Demo-Konfiguration' })).toBeVisible();
 });
 
 test('removes downstream steps when an earlier answer changes', async ({ page }) => {
@@ -122,5 +124,5 @@ test('shows an error and recovers when submission fails then succeeds', async ({
   await page.unroute('**/api/conversation');
   await page.getByRole('button', { name: 'Erneut absenden' }).click();
 
-  await expect(page.getByText('Herzlichen Dank für Ihre Angaben!')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ihre Demo-Konfiguration' })).toBeVisible();
 });

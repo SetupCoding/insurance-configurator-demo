@@ -11,7 +11,7 @@ import { THEME_COLORS } from '@/theme/theme';
 import { ThemeRegistry } from '@/theme/ThemeRegistry';
 
 export const metadata: Metadata = {
-  title: 'Versicherungs-Helfer',
+  title: 'Versicherungs-Konfigurator',
   description:
     'Technische Demo eines Versicherungs-Konfigurators. Keine Beratung, keine Speicherung.',
 };

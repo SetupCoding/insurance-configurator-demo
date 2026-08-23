@@ -3,7 +3,7 @@
 import SendIcon from '@mui/icons-material/Send';
 import { Box, Button, CircularProgress, Container, Typography } from '@mui/material';
 
-import { Conversation, ErrorState, Header } from '@/components';
+import { ConfigurationSummary, Conversation, ErrorState, Header } from '@/components';
 import type { Flow } from '@/lib/schema/flow';
 
 import { ResetButton } from './ResetButton';
@@ -16,7 +16,7 @@ type Props = {
 
 /**
  * Top-level client component for the conversation. Owns the flow state and
- * submits the answers once the user confirms, surfacing loading, success and
+ * submits the answers once the user confirms, surfacing loading, result and
  * error feedback (with a retry).
  */
 export const InsuranceChat = ({ flow }: Props) => {
@@ -32,7 +32,7 @@ export const InsuranceChat = ({ flow }: Props) => {
 
   // The header's reset button retires once the answers are actually
   // submitted; from that point the flow is over, and a fresh reset button
-  // appears next to the thank-you message instead.
+  // appears next to the result instead.
   const showHeaderReset = hasAnswers && !submission.isSuccess;
 
   return (
@@ -46,7 +46,13 @@ export const InsuranceChat = ({ flow }: Props) => {
         sx={{ py: { xs: 4, md: 6 }, textAlign: 'center' }}
       >
         <Typography variant="h2" gutterBottom>
-          Versicherungs-Helfer
+          Versicherungs-Konfigurator
+        </Typography>
+        {/* What this is has to be legible to someone who only ever opens the
+            deployed page, not just to someone who reads the README. */}
+        <Typography sx={{ color: 'text.secondary', maxWidth: '52ch', mx: 'auto' }}>
+          Technische Demo, keine Versicherungsberatung. Ihre Auswahl wird zur Prüfung an den Server
+          geschickt, dort nicht gespeichert und nicht weiterverarbeitet.
         </Typography>
 
         {/* Once every question is answered, submission still needs an explicit
@@ -71,10 +77,10 @@ export const InsuranceChat = ({ flow }: Props) => {
             }
             // aria-disabled rather than the native attribute on purpose: a
             // natively disabled button drops out of the tab order and stops
-            // being announced, which is exactly the wrong thing while it is
-            // the control reporting progress. Double submission is prevented
-            // where it actually can be, by the synchronous guard in
-            // useSubmitAnswers, not by hoping a click cannot get through.
+            // being announced, which is the wrong thing to do to the control
+            // that is currently reporting progress. Double submission is
+            // prevented where it actually can be, by the synchronous guard in
+            // useSubmitAnswers, not by hoping the click cannot get through.
             onClick={() => submission.submit(answers)}
             aria-busy={submission.isPending}
             aria-disabled={submission.isPending}
@@ -92,15 +98,13 @@ export const InsuranceChat = ({ flow }: Props) => {
           </Button>
         )}
 
-        {submission.isSuccess && (
-          <>
-            <Typography variant="h3" sx={{ mt: 4 }}>
-              Herzlichen Dank für Ihre Angaben!
-            </Typography>
-            <Box sx={{ mt: 2 }}>
+        {submission.configuration && (
+          <Box sx={{ mt: 4 }}>
+            <ConfigurationSummary configuration={submission.configuration} />
+            <Box sx={{ mt: 3 }}>
               <ResetButton onConfirm={handleReset} />
             </Box>
-          </>
+          </Box>
         )}
 
         {submission.isError && (

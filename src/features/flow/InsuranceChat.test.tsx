@@ -53,16 +53,46 @@ describe('InsuranceChat', () => {
     await completeFlow();
 
     expect(screen.getByRole('button', { name: 'Absenden' })).toBeInTheDocument();
-    expect(screen.queryByText(/Herzlichen Dank für Ihre Angaben!/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+    ).not.toBeInTheDocument();
   });
 
-  it('submits the answers and shows a thank-you message when "Absenden" is clicked', async () => {
+  it('submits the answers and shows the configuration the server validated', async () => {
     renderWithTheme(<InsuranceChat flow={flow} />);
 
     await submitFlow();
 
-    expect(await screen.findByText(/Herzlichen Dank für Ihre Angaben!/i)).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Absenden' })).not.toBeInTheDocument();
+  });
+
+  it('renders the configuration from the response, not from local state', async () => {
+    server.use(
+      http.post('*/api/conversation', () =>
+        HttpResponse.json({
+          status: 'accepted',
+          configuration: [
+            {
+              name: 'liability',
+              question: 'Frage vom Server',
+              value: true,
+              label: 'Antwort vom Server',
+            },
+          ],
+        }),
+      ),
+    );
+
+    renderWithTheme(<InsuranceChat flow={flow} />);
+    await submitFlow();
+
+    // The server is the authority on what was accepted, so the summary has
+    // to show its wording even where it differs from the local answers.
+    expect(await screen.findByText('Frage vom Server')).toBeInTheDocument();
+    expect(screen.getByText('Antwort vom Server')).toBeInTheDocument();
   });
 
   it('marks the submit button busy and locks earlier answers while in flight', async () => {
@@ -86,7 +116,9 @@ describe('InsuranceChat', () => {
     });
     expect(within(firstGroup).getByRole('button', { name: 'Ja' })).toBeDisabled();
 
-    expect(await screen.findByText(/Herzlichen Dank für Ihre Angaben!/i)).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+    ).toBeInTheDocument();
   });
 
   it('sends one request even when "Absenden" is clicked twice in a row', async () => {
@@ -108,7 +140,9 @@ describe('InsuranceChat', () => {
     fireEvent.click(button);
     fireEvent.click(button);
 
-    expect(await screen.findByText(/Herzlichen Dank für Ihre Angaben!/i)).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+    ).toBeInTheDocument();
     expect(requests).toBe(1);
   });
 
@@ -141,7 +175,9 @@ describe('InsuranceChat', () => {
       screen.queryByRole('heading', { name: 'Benötigen Sie eine Kasko?' }),
     ).not.toBeInTheDocument();
     await delay(150);
-    expect(screen.queryByText(/Herzlichen Dank für Ihre Angaben!/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
@@ -192,17 +228,17 @@ describe('InsuranceChat', () => {
     expect(screen.queryByRole('button', { name: 'Neu starten' })).not.toBeInTheDocument();
   });
 
-  it('moves the reset button from the header to next to the thank-you message', async () => {
+  it('moves the reset button from the header to next to the result', async () => {
     renderWithTheme(<InsuranceChat flow={flow} />);
 
     await completeFlow();
     expect(screen.getByRole('button', { name: 'Neu starten' })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Absenden' }));
-    await screen.findByText(/Herzlichen Dank für Ihre Angaben!/i);
+    await screen.findByRole('heading', { name: 'Ihre Demo-Konfiguration' });
 
     // Exactly one reset button exists post-submission, right after the
-    // thank-you message, not still sitting in the header too.
+    // result, not still sitting in the header too.
     expect(screen.getAllByRole('button', { name: 'Neu starten' })).toHaveLength(1);
   });
 
@@ -223,7 +259,9 @@ describe('InsuranceChat', () => {
     server.use(http.post('*/api/conversation', () => HttpResponse.json(ACCEPTED)));
     await userEvent.click(screen.getByRole('button', { name: 'Erneut absenden' }));
 
-    expect(await screen.findByText(/Herzlichen Dank für Ihre Angaben!/i)).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
@@ -254,6 +292,8 @@ describe('InsuranceChat', () => {
     await submitFlow();
 
     expect(await screen.findByRole('alert')).toBeInTheDocument();
-    expect(screen.queryByText(/Herzlichen Dank für Ihre Angaben!/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+    ).not.toBeInTheDocument();
   });
 });
