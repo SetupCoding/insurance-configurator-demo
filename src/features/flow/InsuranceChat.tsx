@@ -21,19 +21,19 @@ type Props = {
  */
 export const InsuranceChat = ({ flow }: Props) => {
   const { steps, isFinished, hasAnswers, answers, selectOption, reset } = useInsuranceFlow(flow);
-  const submit = useSubmitAnswers();
-
-  const { mutate } = submit;
+  const submission = useSubmitAnswers();
 
   const handleReset = () => {
-    submit.reset();
+    // Resetting during a submission aborts it, so a response already on the
+    // wire cannot land in the conversation the user just restarted.
+    submission.reset();
     reset();
   };
 
   // The header's reset button retires once the answers are actually
   // submitted; from that point the flow is over, and a fresh reset button
   // appears next to the thank-you message instead.
-  const showHeaderReset = hasAnswers && !submit.isSuccess;
+  const showHeaderReset = hasAnswers && !submission.isSuccess;
 
   return (
     <>
@@ -54,11 +54,11 @@ export const InsuranceChat = ({ flow }: Props) => {
             an in-flight request or a completed submission locks them. */}
         <Conversation
           steps={steps}
-          disabled={submit.isPending || submit.isSuccess}
+          disabled={submission.isPending || submission.isSuccess}
           onSelect={selectOption}
         />
 
-        {isFinished && (submit.isIdle || submit.isPending) && (
+        {isFinished && (submission.isIdle || submission.isPending) && (
           <Button
             variant="contained"
             startIcon={
@@ -67,13 +67,17 @@ export const InsuranceChat = ({ flow }: Props) => {
               // font-size and sizes itself from this prop directly, so it
               // has to be given the same 20px to keep the button's height
               // from shrinking while a submission is pending.
-              submit.isPending ? <CircularProgress size={20} color="inherit" /> : <SendIcon />
+              submission.isPending ? <CircularProgress size={20} color="inherit" /> : <SendIcon />
             }
-            onClick={() => {
-              if (!submit.isPending) mutate(answers);
-            }}
-            aria-busy={submit.isPending}
-            aria-disabled={submit.isPending}
+            // aria-disabled rather than the native attribute on purpose: a
+            // natively disabled button drops out of the tab order and stops
+            // being announced, which is exactly the wrong thing while it is
+            // the control reporting progress. Double submission is prevented
+            // where it actually can be, by the synchronous guard in
+            // useSubmitAnswers, not by hoping a click cannot get through.
+            onClick={() => submission.submit(answers)}
+            aria-busy={submission.isPending}
+            aria-disabled={submission.isPending}
             // The default line-height is looser than the icon is tall, which
             // otherwise leaves the label sitting visibly above centre next to
             // it; the remaining ~1px gap is font/glyph-metric asymmetry
@@ -84,11 +88,11 @@ export const InsuranceChat = ({ flow }: Props) => {
               '& .MuiButton-startIcon': { position: 'relative', top: -1 },
             }}
           >
-            {submit.isPending ? 'Wird gesendet…' : 'Absenden'}
+            {submission.isPending ? 'Wird gesendet…' : 'Absenden'}
           </Button>
         )}
 
-        {submit.isSuccess && (
+        {submission.isSuccess && (
           <>
             <Typography variant="h3" sx={{ mt: 4 }}>
               Herzlichen Dank für Ihre Angaben!
@@ -99,9 +103,12 @@ export const InsuranceChat = ({ flow }: Props) => {
           </>
         )}
 
-        {submit.isError && (
+        {submission.isError && (
           <Box sx={{ mt: 4 }}>
-            <ErrorState message={submit.error.message} onRetry={() => mutate(answers)} />
+            <ErrorState
+              message={submission.error?.message}
+              onRetry={() => submission.submit(answers)}
+            />
           </Box>
         )}
       </Container>

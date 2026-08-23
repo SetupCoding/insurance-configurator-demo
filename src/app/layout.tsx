@@ -10,11 +10,10 @@ import type { Metadata, Viewport } from 'next';
 import { THEME_COLORS } from '@/theme/theme';
 import { ThemeRegistry } from '@/theme/ThemeRegistry';
 
-import { Providers } from './providers';
-
 export const metadata: Metadata = {
   title: 'Versicherungs-Helfer',
-  description: 'Ein Chatbot, der Ihnen hilft, die passende Versicherung zu wählen.',
+  description:
+    'Technische Demo eines Versicherungs-Konfigurators. Keine Beratung, keine Speicherung.',
 };
 
 export const viewport: Viewport = {
@@ -33,9 +32,7 @@ const RootLayout = ({ children }: LayoutProps<'/'>) => {
           Zum Inhalt springen
         </a>
         <InitColorSchemeScript attribute="data-mui-color-scheme" defaultMode="dark" />
-        <ThemeRegistry>
-          <Providers>{children}</Providers>
-        </ThemeRegistry>
+        <ThemeRegistry>{children}</ThemeRegistry>
       </body>
     </html>
   );

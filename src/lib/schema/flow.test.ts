@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { flowSchema, type Step, stepSchema } from './flow';
+import { flowSchema, stepSchema } from './flow';
 
 const validStep = {
   id: 100,
