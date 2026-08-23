@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted
+Superseded by [0010](0010-fetch-plus-a-local-submission-hook.md). The reasoning
+about code generation and MSW still holds; the TanStack Query part does not.
 
 ## Context
 

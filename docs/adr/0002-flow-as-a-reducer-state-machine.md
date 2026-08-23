@@ -34,6 +34,11 @@ ones as they're made.
   tested (see `reducer.test.ts`).
 - "Change an earlier answer" is one code path (truncate + re-select), not a
   special case.
-- Referential integrity (every `nextId` pointing at a real step) is checked at
-  the schema level and guarded defensively in the reducer, so a malformed flow
-  fixture can't hang the conversation.
+- Referential integrity (every `nextId` pointing at a real step) is enforced by
+  `flowSchema`, which no flow reaches the reducer without passing. The reducer
+  relies on that rather than re-checking it: the fallback it used to carry for a
+  missing step was unreachable once the schema became the guarantee, and
+  unreachable code cannot be tested.
+- Re-selecting the value a step already holds returns the same state object, so
+  the downstream answers survive and React skips the render. Only a genuine
+  change truncates.

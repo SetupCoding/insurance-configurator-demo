@@ -24,8 +24,11 @@ environment the baselines should be regenerated from.
 ## Consequences
 
 - The required CI gate can't be blocked by environment-dependent pixel noise.
-- Regenerating baselines is a deliberate, on-demand action
-  (`pnpm test:visual -- --update-snapshots`, ideally inside the pinned
-  container) rather than something that happens implicitly on every push.
+- Regenerating baselines is a deliberate, on-demand action: run `visual.yml`
+  with `update_snapshots` and commit the `visual-baselines` artifact. The
+  container is not optional, since a local run on Windows or macOS writes
+  `-win32`/`-darwin` files that CI will never compare against.
+- Snapshots are held to the global 2% pixel tolerance. They previously allowed
+  5% each, which is enough slack for a whole control to change unnoticed.
 - A real visual regression only surfaces when someone runs the visual suite;
   it is not caught automatically on every PR.
