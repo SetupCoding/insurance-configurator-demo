@@ -1,11 +1,17 @@
 name: Visual regression
 
 # Rendering is environment-specific, so visual snapshots run on demand inside a
-# pinned Playwright container rather than in the main CI gate. Regenerate the
-# baselines here (append `--update-snapshots`) when an intentional UI change
-# lands, then commit the updated PNGs.
+# pinned Playwright container rather than in the main CI gate. The same job also
+# regenerates the baselines: run it with `update_snapshots` and download the
+# `visual-baselines` artifact, which is the only supported way to produce them
+# (running locally on Windows or macOS writes -win32/-darwin files instead).
 on:
   workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: 'Regenerate the baselines instead of comparing against them'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -25,10 +31,17 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Run visual regression tests
-        run: pnpm test:visual
+        run: pnpm test:visual ${{ inputs.update_snapshots && '--update-snapshots' || '' }}
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: visual-report
           path: playwright-report/
           if-no-files-found: ignore
+      - name: Upload regenerated baselines
+        if: ${{ !cancelled() && inputs.update_snapshots }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines
+          path: e2e/visual.spec.ts-snapshots/
+          if-no-files-found: error
