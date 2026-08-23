@@ -55,7 +55,6 @@
     "msw": "^2.15.0",
     "prettier": "^3.9.6",
     "typescript": "^5",
-    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.10"
   },
   "packageManager": "pnpm@10.28.0"
