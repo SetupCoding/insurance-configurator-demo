@@ -47,6 +47,15 @@ test.describe('visual regression @visual', () => {
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page).toHaveScreenshot('reset-dialog.png', options);
   });
+
+  test('narrow viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 700 });
+    await page.goto('/');
+    await choose(page, QUESTIONS.liability, 'Ja');
+    await choose(page, QUESTIONS.casco, 'Ja');
+    await expect(page.getByRole('heading', { name: QUESTIONS.cascoType })).toBeVisible();
+    await expect(page).toHaveScreenshot('narrow-viewport.png', options);
+  });
 });
 
 test.describe('forced-colors @visual', () => {
