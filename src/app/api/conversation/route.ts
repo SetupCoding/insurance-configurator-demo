@@ -1,35 +1,51 @@
 import { NextResponse } from 'next/server';
 
+import { getFlow } from '@/lib/data/flow';
+import { validateSubmission } from '@/lib/domain/validateSubmission';
 import { submissionSchema } from '@/lib/schema/answer';
+import type { ErrorCode } from '@/lib/schema/conversation';
 
-const PERSIST_DELAY_MS = 600;
+/**
+ * The longest valid path is a few hundred bytes. Anything far past that is not
+ * a conversation, so it is rejected before being parsed.
+ */
+const MAX_BODY_BYTES = 16 * 1024;
 
-function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function fail(error: ErrorCode, status: number, detail?: string) {
+  return NextResponse.json({ error, ...(detail ? { detail } : {}) }, { status });
 }
 
 /**
- * Accepts a completed conversation. Validates the payload against the
- * submission schema and acknowledges it. This stands in for the upstream
- * service the original project posted to, keeping the app self-contained.
+ * Accepts a completed conversation, checks it against the flow, and answers
+ * with the choices resolved back to the wording they were offered under.
+ *
+ * This is a demo endpoint by design: it stores nothing and has no side effects,
+ * so it is idempotent and needs neither an idempotency key nor deduplication.
+ * What it does do is real: the reply is derived from the submitted path, so an
+ * invented or tampered payload cannot produce one.
  */
 export async function POST(request: Request) {
+  const raw = await request.text();
+  if (new TextEncoder().encode(raw).length > MAX_BODY_BYTES) {
+    return fail('payload_too_large', 413);
+  }
+
   let body: unknown;
   try {
-    body = await request.json();
+    body = JSON.parse(raw);
   } catch {
-    return NextResponse.json({ error: 'Malformed JSON body.' }, { status: 400 });
+    return fail('malformed_json', 400);
   }
 
-  const result = submissionSchema.safeParse(body);
-  if (!result.success) {
-    return NextResponse.json({ error: 'Invalid submission.' }, { status: 422 });
+  const parsed = submissionSchema.safeParse(body);
+  if (!parsed.success) {
+    return fail('invalid_submission', 422);
   }
 
-  // A real implementation would persist the conversation here; the delay
-  // stands in for that so the client's loading state is visible rather than
-  // an instant flash, on a live deploy and not just when self-hosted nearby.
-  await delay(PERSIST_DELAY_MS);
+  const result = validateSubmission(getFlow(), parsed.data);
+  if (!result.ok) {
+    return fail('invalid_path', 422, result.detail);
+  }
 
-  return NextResponse.json({ status: 'ok', received: result.data.length }, { status: 200 });
+  return NextResponse.json({ status: 'accepted', configuration: result.configuration });
 }
