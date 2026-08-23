@@ -97,6 +97,20 @@ describe('InsuranceChat', () => {
     expect(within(firstGroup).getByRole('button', { name: 'Ja' })).not.toBeDisabled();
   });
 
+  it('keeps downstream questions when the same option is clicked again', async () => {
+    renderChat(<InsuranceChat flow={flow} />);
+
+    await completeFlow();
+    await choose('Benötigen Sie eine Kasko?', 'Ja');
+
+    expect(
+      screen.getByRole('heading', { name: 'Welche Art von Kasko benötigen Sie?' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Welche Kennzeichenart benötigen Sie?' }),
+    ).toBeInTheDocument();
+  });
+
   it('hides the reset button before any answer is given', () => {
     renderChat(<InsuranceChat flow={flow} />);
     expect(screen.queryByRole('button', { name: 'Neu starten' })).not.toBeInTheDocument();

@@ -34,6 +34,11 @@ export function createFlowReducer(flow: Flow) {
         const option = target.step.valueOptions.find((o) => o.value === action.value);
         if (!option) return state;
 
+        // Re-selecting the answer that is already recorded is a no-op, not a
+        // change: returning the same state keeps the downstream answers (and
+        // lets React skip the re-render).
+        if (target.selectedValue === action.value) return state;
+
         // Changing an earlier answer invalidates everything after it, so drop
         // the downstream steps before recording the new selection.
         const steps = state.steps.slice(0, index + 1);

@@ -56,6 +56,31 @@ describe('flow reducer', () => {
     expect(changed.steps[0].selectedValue).toBe(true);
   });
 
+  it('keeps downstream answers when the same value is re-selected', () => {
+    const completed = run([
+      { stepId: 100, value: false },
+      { stepId: 200, value: false },
+      { stepId: 300, value: 'ekz' },
+    ]);
+
+    // Clicking the already-selected option changes nothing, so the state must
+    // come back by identity and the later answers must survive.
+    const again = reducer(completed, { type: 'selectOption', stepId: 100, value: false });
+    expect(again).toBe(completed);
+  });
+
+  it('keeps downstream answers when the last, unrelated answer is re-selected', () => {
+    const completed = run([
+      { stepId: 100, value: false },
+      { stepId: 200, value: false },
+      { stepId: 300, value: 'ekz' },
+    ]);
+
+    const again = reducer(completed, { type: 'selectOption', stepId: 300, value: 'ekz' });
+    expect(again).toBe(completed);
+    expect(again.status).toBe('completed');
+  });
+
   it('collects answers as name/value pairs', () => {
     const state = run([
       { stepId: 100, value: true },

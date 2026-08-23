@@ -66,6 +66,21 @@ test('removes downstream steps when an earlier answer changes', async ({ page })
   await expect(page.getByRole('heading', { name: QUESTIONS.licensePlate })).toBeVisible();
 });
 
+test('keeps downstream answers when the same option is clicked again', async ({ page }) => {
+  await page.goto('/');
+
+  await choose(page, QUESTIONS.liability, 'Ja');
+  await choose(page, QUESTIONS.casco, 'Ja');
+  await choose(page, QUESTIONS.cascoType, 'Vollkasko');
+  await expect(page.getByRole('heading', { name: QUESTIONS.licensePlate })).toBeVisible();
+
+  // Clicking an already-selected earlier answer decides nothing new, so the
+  // questions it led to must stay.
+  await choose(page, QUESTIONS.casco, 'Ja');
+  await expect(page.getByRole('heading', { name: QUESTIONS.cascoType })).toBeVisible();
+  await expect(page.getByRole('heading', { name: QUESTIONS.licensePlate })).toBeVisible();
+});
+
 test('header does not overlap the title on a narrow viewport', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
   await page.goto('/');
