@@ -77,6 +77,20 @@ test('header does not overlap the title on a narrow viewport', async ({ page }) 
   expect(titleBox.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height);
 });
 
+test('has no horizontal overflow on a narrow viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto('/');
+
+  // Long, unbroken German compound words (as headings and button labels)
+  // must wrap instead of overflowing.
+  await choose(page, QUESTIONS.liability, 'Ja');
+  await choose(page, QUESTIONS.casco, 'Ja');
+  await choose(page, QUESTIONS.cascoType, 'Vollkasko');
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(overflow).toBeLessThanOrEqual(320);
+});
+
 test('shows an error and recovers when submission fails then succeeds', async ({ page }) => {
   // Fail the first submission.
   await page.route('**/api/conversation', (route) => route.fulfill({ status: 500 }));

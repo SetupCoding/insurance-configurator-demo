@@ -70,7 +70,9 @@ export const StepQuestion = ({
 
   return (
     <Box sx={{ my: 3 }}>
-      <Typography variant="h3" gutterBottom>
+      {/* German compound words (e.g. "Haftpflichtversicherung") have no
+          natural break point and can overflow a narrow viewport otherwise. */}
+      <Typography variant="h3" gutterBottom sx={{ overflowWrap: 'break-word' }}>
         {step.text}
       </Typography>
       <StyledToggleButtonGroup
