@@ -30,5 +30,15 @@ environment the baselines should be regenerated from.
   `-win32`/`-darwin` files that CI will never compare against.
 - Snapshots are held to the global 2% pixel tolerance. They previously allowed
   5% each, which is enough slack for a whole control to change unnoticed.
+- A pixel-ratio limit only catches what the per-pixel comparator considers
+  different at all, and that comparator is amplitude-based. A background
+  gradient displaced by the scroll offset measured 31/255 across a third of the
+  image and passed at every threshold that does not also flag antialiasing
+  noise. So this suite guards against changes in shape and position, not
+  against faint large-area ones; those have to be prevented at capture time.
+  The capture is normalised for exactly that reason: every snapshot scrolls the
+  page to the top first, because a `fullPage` capture leaves a background with
+  `attachment: fixed` anchored at the current scroll offset, which renders a
+  seam the browser itself never paints.
 - A real visual regression only surfaces when someone runs the visual suite;
   it is not caught automatically on every PR.

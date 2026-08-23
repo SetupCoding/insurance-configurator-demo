@@ -34,3 +34,18 @@ export async function toggleColorScheme(page: Page) {
   // here would be flaky.
   await page.waitForTimeout(250);
 }
+
+/**
+ * Puts the page back at the top before a snapshot.
+ *
+ * A fullPage capture expands past the viewport, but a background with
+ * `attachment: fixed` stays anchored at whatever the scroll offset happens to
+ * be, so the background lands displaced by exactly that many pixels and the
+ * image shows a hard seam no browser ever paints. Answering a question scrolls
+ * the next one into view, which is why only the interactive snapshots were
+ * affected.
+ */
+export async function scrollToTop(page: Page) {
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+}

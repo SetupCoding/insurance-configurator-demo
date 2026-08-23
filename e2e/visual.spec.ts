@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { choose, completeFlow, QUESTIONS, toggleColorScheme } from './helpers';
+import { choose, completeFlow, QUESTIONS, scrollToTop, toggleColorScheme } from './helpers';
 
 /**
  * Visual regression. Rendering is environment-specific, so these run only on
@@ -10,6 +10,10 @@ import { choose, completeFlow, QUESTIONS, toggleColorScheme } from './helpers';
  *
  * The tolerance is the global 2% from playwright.config.ts. These used to allow
  * 5% each, which is enough to hide a whole control changing.
+ *
+ * Every snapshot goes through scrollToTop first. Answering a question scrolls
+ * the next one into view, and a scrolled page captured with fullPage renders
+ * the fixed background displaced; see the helper for why.
  */
 test.describe('visual regression @visual', () => {
   test.skip(({ browserName }) => browserName !== 'chromium', 'baselines are Chromium-only');
@@ -19,6 +23,7 @@ test.describe('visual regression @visual', () => {
   test('initial page', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await scrollToTop(page);
     await expect(page).toHaveScreenshot('initial.png', options);
   });
 
@@ -27,12 +32,14 @@ test.describe('visual regression @visual', () => {
     await choose(page, QUESTIONS.liability, 'Ja');
     await choose(page, QUESTIONS.casco, 'Ja');
     await expect(page.getByRole('heading', { name: QUESTIONS.cascoType })).toBeVisible();
+    await scrollToTop(page);
     await expect(page).toHaveScreenshot('mid-conversation.png', options);
   });
 
   test('completed conversation', async ({ page }) => {
     await page.goto('/');
     await completeFlow(page);
+    await scrollToTop(page);
     await expect(page).toHaveScreenshot('completed.png', options);
   });
 
@@ -40,6 +47,7 @@ test.describe('visual regression @visual', () => {
     await page.goto('/');
     await toggleColorScheme(page);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await scrollToTop(page);
     await expect(page).toHaveScreenshot('light.png', options);
   });
 
@@ -48,6 +56,8 @@ test.describe('visual regression @visual', () => {
     await choose(page, QUESTIONS.liability, 'Ja');
     await page.getByRole('button', { name: 'Neu starten' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
+    // No scrollToTop here: one answer does not make the page scroll, and an
+    // open modal <dialog> blocks scrolling anyway.
     await expect(page).toHaveScreenshot('reset-dialog.png', options);
   });
 
@@ -57,6 +67,7 @@ test.describe('visual regression @visual', () => {
     await choose(page, QUESTIONS.liability, 'Ja');
     await choose(page, QUESTIONS.casco, 'Ja');
     await expect(page.getByRole('heading', { name: QUESTIONS.cascoType })).toBeVisible();
+    await scrollToTop(page);
     await expect(page).toHaveScreenshot('narrow-viewport.png', options);
   });
 });
@@ -73,6 +84,7 @@ test.describe('forced-colors @visual', () => {
     await page.emulateMedia({ forcedColors: 'active' });
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await scrollToTop(page);
     await expect(page).toHaveScreenshot('forced-colors-initial.png', options);
   });
 
@@ -81,6 +93,7 @@ test.describe('forced-colors @visual', () => {
     await page.goto('/');
     await choose(page, QUESTIONS.liability, 'Ja');
     await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeVisible();
+    await scrollToTop(page);
     await expect(page).toHaveScreenshot('forced-colors-selected.png', options);
   });
 });

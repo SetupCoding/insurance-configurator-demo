@@ -19,7 +19,14 @@ export default defineConfig({
   timeout: 30_000,
   expect: {
     timeout: 5_000,
-    toHaveScreenshot: { maxDiffPixelRatio: 0.02 },
+    // Tighter than the 0.2 default, and verified stable in the pinned
+    // container. Note what this still cannot catch: the comparator works per
+    // pixel, so a large-area but low-amplitude change stays invisible however
+    // many pixels it touches. A displaced background gradient measured 31/255
+    // across a third of the image and no workable threshold flagged it. Such
+    // differences have to be prevented at capture time instead, which is what
+    // scrollToTop in the visual spec does.
+    toHaveScreenshot: { maxDiffPixelRatio: 0.02, threshold: 0.1 },
   },
   use: {
     baseURL,
