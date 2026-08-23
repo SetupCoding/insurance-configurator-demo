@@ -26,6 +26,19 @@ const ACCEPTED = {
   ],
 };
 
+/**
+ * A request the test holds open by hand. Timing out a fixed delay against the
+ * test's own progress is the kind of race that only fails on a slow machine, so
+ * anything that has to observe an in-flight request waits on this instead.
+ */
+function gate() {
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { held, release };
+}
+
 /** Selects an option within the question identified by its heading/group label. */
 async function choose(stepText: string, optionName: string) {
   const group = screen.getByRole('group', { name: stepText });
@@ -96,9 +109,10 @@ describe('InsuranceChat', () => {
   });
 
   it('marks the submit button busy and locks earlier answers while in flight', async () => {
+    const request = gate();
     server.use(
       http.post('*/api/conversation', async () => {
-        await delay(50);
+        await request.held;
         return HttpResponse.json(ACCEPTED);
       }),
     );
@@ -116,6 +130,7 @@ describe('InsuranceChat', () => {
     });
     expect(within(firstGroup).getByRole('button', { name: 'Ja' })).toBeDisabled();
 
+    request.release();
     expect(
       await screen.findByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
     ).toBeInTheDocument();
@@ -148,12 +163,13 @@ describe('InsuranceChat', () => {
 
   it('aborts an in-flight submission when the conversation is reset', async () => {
     let aborts = 0;
+    const pending = gate();
     server.use(
       http.post('*/api/conversation', async ({ request }) => {
         request.signal.addEventListener('abort', () => {
           aborts += 1;
         });
-        await delay(100);
+        await pending.held;
         return HttpResponse.json(ACCEPTED);
       }),
     );
@@ -169,12 +185,16 @@ describe('InsuranceChat', () => {
 
     await waitFor(() => expect(aborts).toBe(1));
 
-    // Back at the first question, and the response that was already on the
-    // wire must not pull the finished state back in.
+    // Back at the first question.
     expect(
       screen.queryByRole('heading', { name: 'Benötigen Sie eine Kasko?' }),
     ).not.toBeInTheDocument();
-    await delay(150);
+
+    // Now let the response the server had already prepared go out. The attempt
+    // it belongs to has been retired, so it must not pull the finished state
+    // back in. The wait is long enough that a missing guard would show up.
+    pending.release();
+    await delay(100);
     expect(
       screen.queryByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
     ).not.toBeInTheDocument();
