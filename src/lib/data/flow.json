@@ -46,7 +46,7 @@
   {
     "id": 301,
     "name": "vehicles",
-    "text": "Wieviele Fahrzeuge wollen Sie versichern?",
+    "text": "Wie viele Fahrzeuge wollen Sie versichern?",
     "uiType": "button",
     "valueType": "number",
     "valueOptions": [
