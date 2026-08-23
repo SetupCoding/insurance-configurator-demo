@@ -178,9 +178,12 @@ for why `.npmrc` pins `node-linker=hoisted`.
 GitHub Actions ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs a
 production dependency audit, Prettier, ESLint, typecheck, unit tests with
 coverage gates, the production build, and cross-browser e2e, security-header and
-accessibility tests on every push and PR to `main`. Visual regression runs
-separately, on demand, in a pinned Playwright container. Dependabot keeps npm,
-Actions and Docker dependencies current.
+accessibility tests on every push and PR to `main`. A separate job builds the
+Docker image, waits for its own healthcheck and posts both a valid and a
+tampered path at it, because the other jobs run against a dev server and never
+touch the standalone bundle the image ships. Visual regression runs separately,
+on demand, in a pinned Playwright container. Dependabot keeps npm, Actions and
+Docker dependencies current.
 
 ## Deploy
 

@@ -65,3 +65,42 @@ jobs:
           name: playwright-report
           path: playwright-report/
           if-no-files-found: ignore
+
+  # The unit and e2e jobs both run against a dev/next-start server, so neither
+  # exercises the standalone bundle the image actually ships. A missing .npmrc in
+  # the deps stage passed every other gate and still produced a container that
+  # died at start on an unresolvable @swc/helpers, which is what this catches.
+  docker:
+    name: Container image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t chat-bot-anton-schmidt:ci .
+      - name: Start the container
+        run: docker run -d --name web -p 3000:3000 chat-bot-anton-schmidt:ci
+      - name: Wait for the image's own healthcheck
+        run: |
+          for _ in $(seq 1 30); do
+            status=$(docker inspect --format='{{.State.Health.Status}}' web)
+            [ "$status" = "healthy" ] && exit 0
+            [ "$status" = "unhealthy" ] && break
+            sleep 2
+          done
+          echo "container never became healthy"
+          exit 1
+      - name: Accept a complete path
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:3000/api/conversation \
+            -H 'Content-Type: application/json' \
+            -d '[{"name":"liability","value":false},{"name":"casco","value":false},{"name":"licensePlateType","value":"ekz"}]')
+          test "$code" = "200"
+      - name: Reject a path the flow does not allow
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:3000/api/conversation \
+            -H 'Content-Type: application/json' \
+            -d '[{"name":"liability","value":false},{"name":"cascoType","value":"full"}]')
+          test "$code" = "422"
+      - name: Container logs
+        if: failure()
+        run: docker logs web

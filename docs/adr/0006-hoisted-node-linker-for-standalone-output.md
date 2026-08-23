@@ -24,6 +24,10 @@ against that layout.
 
 - The Docker image (see [Dockerfile](../../Dockerfile)) builds and runs
   correctly with the standalone server.
+- `.npmrc` has to be copied into the dependency stage explicitly. Omitting it
+  is silent: the install falls back to the symlinked layout, every other gate
+  still passes, and the container dies at start on `@swc/helpers`. CI now builds
+  the image and waits for its healthcheck so this cannot pass unnoticed again.
 - Loses some of pnpm's strict dependency isolation (a package can technically
   `require` something it didn't declare). Acceptable trade-off for an app of
   this size; revisit if that isolation becomes valuable enough to instead fix

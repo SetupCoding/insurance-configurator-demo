@@ -10,7 +10,10 @@ WORKDIR /app
 
 # ---- Dependencies ----------------------------------------------------------
 FROM base AS deps
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# .npmrc carries node-linker=hoisted, which the standalone build depends on
+# (see docs/adr/0006). Leaving it out silently gives the symlinked layout and a
+# container that dies at start on a missing @swc/helpers.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # ---- Build -----------------------------------------------------------------
@@ -36,4 +39,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 EXPOSE 3000
+
+# Readiness rather than liveness: the page renders the flow, so a 200 here means
+# the flow parsed and the server can serve it.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:3000/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+
 CMD ["node", "server.js"]
