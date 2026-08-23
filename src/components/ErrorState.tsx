@@ -1,6 +1,8 @@
 import SendIcon from '@mui/icons-material/Send';
 import { Box, Button, Typography } from '@mui/material';
 
+import { ICON_LABEL_ALIGNMENT } from '@/theme/buttonStyles';
+
 type Props = {
   /** When absent, nothing renders. */
   message?: string;
@@ -26,11 +28,7 @@ export const ErrorState = ({ message, onRetry }: Props) => {
           color="error"
           startIcon={<SendIcon />}
           onClick={onRetry}
-          // The default line-height is looser than the icon is tall, which
-          // otherwise leaves the label sitting visibly above centre next to it;
-          // the remaining ~1px gap is font/glyph-metric asymmetry line-height
-          // alone can't close, measured and nudged away directly.
-          sx={{ lineHeight: 1, '& .MuiButton-startIcon': { position: 'relative', top: -1 } }}
+          sx={ICON_LABEL_ALIGNMENT}
         >
           Erneut absenden
         </Button>

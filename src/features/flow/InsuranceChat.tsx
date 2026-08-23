@@ -5,6 +5,7 @@ import { Box, Button, CircularProgress, Container, Typography } from '@mui/mater
 
 import { ConfigurationSummary, Conversation, ErrorState, Header } from '@/components';
 import type { Flow } from '@/lib/schema/flow';
+import { ICON_LABEL_ALIGNMENT } from '@/theme/buttonStyles';
 
 import { ResetButton } from './ResetButton';
 import { useInsuranceFlow } from './useInsuranceFlow';
@@ -86,15 +87,7 @@ export const InsuranceChat = ({ flow }: Props) => {
             onClick={() => submission.submit(answers)}
             aria-busy={submission.isPending}
             aria-disabled={submission.isPending}
-            // The default line-height is looser than the icon is tall, which
-            // otherwise leaves the label sitting visibly above centre next to
-            // it; the remaining ~1px gap is font/glyph-metric asymmetry
-            // line-height alone can't close, measured and nudged away directly.
-            sx={{
-              mt: 3,
-              lineHeight: 1,
-              '& .MuiButton-startIcon': { position: 'relative', top: -1 },
-            }}
+            sx={{ mt: 3, ...ICON_LABEL_ALIGNMENT }}
           >
             {submission.isPending ? 'Wird gesendet…' : 'Absenden'}
           </Button>

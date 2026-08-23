@@ -4,12 +4,10 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { Box, Button, Typography } from '@mui/material';
 import { useRef } from 'react';
 
-const buttonSx = {
-  // The button's default line-height is looser than the icon is tall, which
-  // otherwise leaves the (all-caps, no descenders) label sitting visibly
-  // above centre next to it.
-  lineHeight: 1,
-} as const;
+// Deliberately not ICON_LABEL_ALIGNMENT: this is a small text button, whose
+// smaller icon does not need the one-pixel nudge that the medium contained
+// buttons do. Only the loose line-height has to be corrected.
+const buttonSx = { lineHeight: 1 } as const;
 
 type Props = {
   onConfirm: () => void;
