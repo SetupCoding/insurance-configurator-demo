@@ -48,12 +48,9 @@ export function createFlowReducer(flow: Flow) {
           return { steps, status: 'completed' };
         }
 
-        const nextStep = findStepById(flow, option.nextId);
-        if (!nextStep) {
-          // Schema-level referential integrity should prevent this; guard
-          // anyway so an inconsistent flow can never hang the conversation.
-          return { steps, status: 'completed' };
-        }
+        // flowSchema rejects a nextId that matches no step, so a non-terminal
+        // option always resolves and this lookup cannot miss.
+        const nextStep = findStepById(flow, option.nextId)!;
 
         return {
           steps: [...steps, { step: nextStep, selectedValue: null }],
@@ -62,8 +59,6 @@ export function createFlowReducer(flow: Flow) {
       }
       case 'reset':
         return initFlowState(flow);
-      default:
-        return state;
     }
   };
 }
