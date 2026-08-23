@@ -68,8 +68,6 @@ those become mandatory the moment persistence appears.
 ```
 src/
   app/                    App Router pages and API routes (Server Components)
-    api/flow/             GET  serves the validated flow. Not used by the UI,
-                          which receives it prerendered into the page
     api/conversation/     POST validates a submitted path and echoes it back
   features/flow/          The conversation state machine (pure reducer),
                           persistence, submission, and the client component
