@@ -2,9 +2,8 @@ import { InsuranceChat } from '@/features/flow/InsuranceChat';
 import { getFlow } from '@/lib/data/flow';
 
 /**
- * Server Component: loads the validated flow at render time and hands it to
- * the client conversation. The flow is prerendered into the page, so there is
- * no request-time data fetch.
+ * The flow is read on the server and prerendered into the page, so the client
+ * never fetches it and the first paint already has the opening question.
  */
 const HomePage = () => {
   const flow = getFlow();

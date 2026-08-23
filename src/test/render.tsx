@@ -8,9 +8,10 @@ const Providers = ({ children }: { children: ReactNode }) => {
   return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
 };
 
-/** Renders a component tree wrapped in the application MUI theme. */
 export function renderWithTheme(ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) {
   return render(ui, { wrapper: Providers, ...options });
 }
 
+// Re-exported so a test gets `screen`, `waitFor` and the themed render from one
+// import, and cannot reach for the unthemed `render` by accident.
 export * from '@testing-library/react';

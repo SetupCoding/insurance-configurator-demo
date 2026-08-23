@@ -44,9 +44,9 @@ async function messageFor(response: Response): Promise<string> {
 }
 
 /**
- * Submits the completed conversation and returns the configuration the server
- * derived from it. The response is validated against the same schema the route
- * produces it with, so a wrong shape fails here rather than in a component.
+ * The response is validated against the same schema the route produces it with,
+ * so a wrong shape fails here rather than surfacing as an empty success in a
+ * component.
  *
  * Rejects on a non-2xx response, and with an AbortError when `signal` fires.
  */

@@ -9,6 +9,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
+  // CI runs single-worker. Locally Playwright uses about half the cores, and a
+  // parallel run on a loaded machine intermittently kills Firefox during
+  // context teardown ("_maybeDontRestoreTabs"), which looks like a real
+  // cross-browser failure and is not one. Re-run with --workers=1 before
+  // believing a local Firefox failure.
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : [['list']],
   timeout: 30_000,

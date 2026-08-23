@@ -21,6 +21,8 @@ export default defineConfig({
         'src/**/*.{test,spec}.{ts,tsx}',
         'src/test/**',
         'src/**/*.d.ts',
+        // Font imports, metadata and the html/body shell. No branch to cover,
+        // and the e2e suite is what proves it renders.
         'src/app/**/layout.tsx',
         'src/lib/mocks/**',
       ],

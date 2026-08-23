@@ -20,18 +20,9 @@ function asError(cause: unknown): Error {
 }
 
 /**
- * Submits the completed conversation.
- *
- * Written by hand rather than delegated to a mutation library, because the two
- * properties that matter for this POST are ones a generic default does not
- * give it:
- *
- * - No automatic retry. Repeating a POST is only safe with an idempotency key,
- *   and whether to try again is the user's call, not the transport's.
- * - A cancellable request. Reset stays available while a submission is in
- *   flight; it aborts the request and retires the attempt, which is what stops
- *   a response already on the wire from landing in a conversation the user has
- *   since restarted.
+ * Hand-rolled rather than delegated to a mutation library, because this POST
+ * must never retry on its own and must be cancellable. See ADR 0010 for the
+ * full argument.
  */
 export function useSubmitAnswers() {
   const [state, setState] = useState<SubmitState>(IDLE);

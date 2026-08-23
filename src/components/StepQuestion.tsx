@@ -42,11 +42,10 @@ type Props = {
   selectedValue: OptionValue | null;
   disabled: boolean;
   onSelect: (value: OptionValue) => void;
-  /** When true, focus moves to this question as it appears (skip the first). */
+  /** Moves focus to this question when it appears. */
   autoFocus?: boolean;
 };
 
-/** Renders a single question with its selectable options. */
 export const StepQuestion = ({
   step,
   selectedValue,
@@ -58,9 +57,8 @@ export const StepQuestion = ({
 
   useEffect(() => {
     if (!autoFocus) return;
-    // Move focus to the new question's first option (not the heading) so
-    // keyboard users land on the next actionable control, and bring it into
-    // view. Motion is suppressed when the user prefers reduced motion.
+    // The first option rather than the heading, so a keyboard user lands on
+    // something actionable instead of having to tab past a heading first.
     firstOptionRef.current?.focus();
     firstOptionRef.current?.scrollIntoView({
       behavior: prefersReducedMotion() ? 'auto' : 'smooth',

@@ -3,8 +3,11 @@ import { z } from 'zod';
 import { optionValueSchema } from './flow';
 
 /**
- * Schema for a submitted conversation: the list of answers the user gave,
- * each identified by the step `name` and carrying the chosen `value`.
+ * A submitted conversation as it goes over the wire.
+ *
+ * This is a shape check and nothing more. Whether the answers form a path the
+ * flow could actually have produced cannot be expressed here, because it
+ * depends on the flow; `validateSubmission` in lib/domain answers that.
  */
 export const answerSchema = z.object({
   name: z.string().min(1),

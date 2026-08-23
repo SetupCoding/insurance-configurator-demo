@@ -62,7 +62,6 @@ test('removes downstream steps when an earlier answer changes', async ({ page })
   await choose(page, QUESTIONS.casco, 'Ja');
   await expect(page.getByRole('heading', { name: QUESTIONS.cascoType })).toBeVisible();
 
-  // Change the second answer: the casco-type question must disappear.
   await choose(page, QUESTIONS.casco, 'Nein');
   await expect(page.getByRole('heading', { name: QUESTIONS.cascoType })).toBeHidden();
   await expect(page.getByRole('heading', { name: QUESTIONS.licensePlate })).toBeVisible();

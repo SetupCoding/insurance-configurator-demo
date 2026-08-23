@@ -3,8 +3,8 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 
-// Ensure React Testing Library unmounts trees between tests to avoid
-// cross-test DOM leakage, and reset persisted state between tests.
+// Persisted answers survive a jsdom reset, so without clearing storage a test
+// would restore the previous test's conversation.
 afterEach(() => {
   cleanup();
   window.sessionStorage.clear();

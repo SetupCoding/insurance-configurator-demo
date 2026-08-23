@@ -28,6 +28,8 @@ const RootLayout = ({ children }: LayoutProps<'/'>) => {
     // intentionally differs from what the server rendered.
     <html lang="de" suppressHydrationWarning>
       <body>
+        {/* First in the document, so it is the first thing a keyboard user
+            reaches. Moving it below anything focusable defeats it. */}
         <a href="#main-content" className="skip-link">
           Zum Inhalt springen
         </a>

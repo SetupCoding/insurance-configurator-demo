@@ -2,12 +2,10 @@ import type { Flow, OptionValue, Step } from '@/lib/schema/flow';
 
 import type { Answer, FlowAction, FlowState, Selection } from './types';
 
-/** Finds a step by id. Returns undefined when the id is not part of the flow. */
 export function findStepById(flow: Flow, id: number): Step | undefined {
   return flow.find((step) => step.id === id);
 }
 
-/** The starting state: only the first step is visible and unanswered. */
 export function initFlowState(flow: Flow): FlowState {
   return {
     steps: [{ step: flow[0], selectedValue: null }],
@@ -16,12 +14,12 @@ export function initFlowState(flow: Flow): FlowState {
 }
 
 /**
- * Builds the reducer for a given flow.
+ * A factory so the flow is captured once and the reducer itself stays a pure
+ * function of `(state, action)`.
  *
- * The reducer is a pure function of `(state, action)`; the flow definition is
- * captured once via this factory. Steps are treated as immutable: the selection
- * is tracked alongside each step rather than by mutating it, so no deep copying
- * of the flow is ever needed.
+ * Steps are never mutated: the selection is tracked alongside each step rather
+ * than written into it, which is what keeps the flow definition shareable and
+ * saves deep-copying it on every answer.
  */
 export function createFlowReducer(flow: Flow) {
   return function flowReducer(state: FlowState, action: FlowAction): FlowState {
@@ -63,7 +61,7 @@ export function createFlowReducer(flow: Flow) {
   };
 }
 
-/** Projects the answered steps into the payload used for submission. */
+/** Answered steps only, so the trailing unanswered question is left out. */
 export function selectAnswers(state: FlowState): Answer[] {
   const answers: Answer[] = [];
   for (const entry of state.steps) {
@@ -74,7 +72,7 @@ export function selectAnswers(state: FlowState): Answer[] {
   return answers;
 }
 
-/** Projects the answered steps into replayable selections for persistence. */
+/** As above, but keyed by step id so the reducer can replay them on restore. */
 export function selectSelections(state: FlowState): Selection[] {
   const selections: Selection[] = [];
   for (const entry of state.steps) {

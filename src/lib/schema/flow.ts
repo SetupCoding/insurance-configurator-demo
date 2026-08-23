@@ -14,7 +14,6 @@ export const valueTypeSchema = z.enum(['boolean', 'number', 'string']);
 /** The only rendering mode the UI implements. */
 export const uiTypeSchema = z.literal('button');
 
-/** The value carried by a chosen option. */
 export const optionValueSchema = z.union([z.boolean(), z.number(), z.string()]);
 
 /** The id of the next step, or `false` to signal the end of the flow. */
@@ -51,7 +50,6 @@ function successors(step: Step, byId: Map<number, Step>): Step[] {
   );
 }
 
-/** Ids reachable by following options from `start`. */
 function reachableFrom(start: Step, byId: Map<number, Step>): Set<number> {
   const reached = new Set<number>();
   const queue = [start];
@@ -131,6 +129,9 @@ function collectStepIssues(step: Step, index: number): FlowIssue[] {
  * its own, and wired into `flowSchema` so `parse` guarantees all of them.
  */
 export function collectFlowIssues(steps: Step[]): FlowIssue[] {
+  // Load-bearing: Zod runs superRefine even after `.min(1)` has already failed,
+  // so an empty array reaches here and the graph walk below would read
+  // `steps[0]` off the end.
   if (steps.length === 0) return [];
 
   const issues: FlowIssue[] = [];

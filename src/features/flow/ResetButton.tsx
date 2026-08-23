@@ -16,12 +16,13 @@ type Props = {
 };
 
 /**
- * "Neu starten", guarded by a confirmation prompt so a stray click doesn't
- * discard progress. Uses the native <dialog> element via showModal() for
- * built-in focus trapping, Escape-to-close and accessible modal semantics,
- * rather than hand-rolling them. With no autoFocus set, showModal() focuses
- * the first button ("Abbrechen") by default, so a stray Enter cancels
- * instead of confirming the destructive action.
+ * Confirmed before it discards anything, because a stray click would otherwise
+ * throw away the whole conversation.
+ *
+ * The native <dialog> via showModal() rather than a hand-rolled modal: focus
+ * trapping, Escape-to-close and the modal semantics come for free. Leaving
+ * autoFocus unset is deliberate too, since showModal() then focuses the first
+ * button, so a stray Enter hits "Abbrechen" rather than confirming.
  */
 export const ResetButton = ({ onConfirm }: Props) => {
   const dialogRef = useRef<HTMLDialogElement>(null);

@@ -19,8 +19,7 @@ const storedSchema = z.object({
 });
 
 /**
- * Reads persisted selections, returning [] when they are absent, corrupt, from
- * an older shape, expired, or storage is unavailable.
+ * Absent, corrupt, outdated, expired and unavailable storage all read as [].
  *
  * There is deliberately no flow version here. Selections are restored by
  * replaying them through the reducer, which only accepts a value the step it
@@ -69,7 +68,6 @@ export function saveSelections(selections: Selection[]): void {
   }
 }
 
-/** Removes any persisted selections. */
 export function clearSelections(): void {
   if (typeof window === 'undefined') return;
   try {

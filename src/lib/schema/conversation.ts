@@ -10,7 +10,7 @@ import { optionValueSchema } from './flow';
  * to produce it.
  */
 
-/** One answered question, resolved back to the wording the user actually saw. */
+/** One answered question, carrying the wording the user actually saw. */
 export const configurationEntrySchema = z.object({
   name: z.string().min(1),
   question: z.string().min(1),

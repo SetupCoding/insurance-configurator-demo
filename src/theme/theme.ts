@@ -13,12 +13,11 @@ export const THEME_COLORS = [
 ];
 
 const baseTheme = createTheme({
-  // CSS theme variables render the palette as CSS custom properties, which
-  // avoids a colour flash on first paint during server-side rendering and
-  // lets the colour scheme switch at runtime without re-rendering React.
-  // Scheme switching is driven by a data attribute (set by InitColorSchemeScript
-  // and the toggle), not the OS `prefers-color-scheme` media query, so a manual
-  // choice sticks regardless of the system setting.
+  // The palette as CSS custom properties, which avoids a colour flash on the
+  // first server-rendered paint and lets the scheme switch without React
+  // re-rendering. Switching is driven by a data attribute rather than the OS
+  // `prefers-color-scheme` query, so an explicit choice sticks even when it
+  // disagrees with the system setting.
   cssVariables: {
     colorSchemeSelector: 'data-mui-color-scheme',
   },

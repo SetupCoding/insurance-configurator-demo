@@ -9,12 +9,10 @@ import { StepQuestion } from './StepQuestion';
 
 type Props = {
   steps: AnsweredStep[];
-  /** Whether every option should be disabled, e.g. while submitting. */
   disabled: boolean;
   onSelect: (stepId: number, value: OptionValue) => void;
 };
 
-/** Renders the ordered list of questions that make up the conversation. */
 export const Conversation = ({ steps, disabled, onSelect }: Props) => {
   return (
     <Box sx={{ width: '100%' }}>
@@ -25,6 +23,9 @@ export const Conversation = ({ steps, disabled, onSelect }: Props) => {
           selectedValue={selectedValue}
           disabled={disabled}
           onSelect={(value) => onSelect(step.id, value)}
+          // Every question but the first appeared in response to an answer, so
+          // moving focus to it continues the user's action. Doing it to the
+          // first one would move focus on page load, unprompted.
           autoFocus={index > 0}
         />
       ))}

@@ -8,10 +8,11 @@ type Props = {
 };
 
 /**
- * The outcome of a submission: the answered path as the server read it back,
- * not as the client remembers it. A description list keeps each question tied
- * to its answer for assistive technology rather than only visually, which is
- * why the two columns are a grid over `dt`/`dd` instead of a table.
+ * Shows the path as the server read it back, not as the client remembers it.
+ *
+ * A description list rather than two columns of text, so the pairing between a
+ * question and its answer is available to a screen reader and not only to the
+ * eye; the grid is layout over that structure, not a replacement for it.
  */
 export const ConfigurationSummary = ({ configuration }: Props) => {
   return (
@@ -37,8 +38,7 @@ export const ConfigurationSummary = ({ configuration }: Props) => {
       >
         {configuration.map((entry) => (
           <Fragment key={entry.name}>
-            {/* German compound words have no natural break point and would
-                otherwise overflow a narrow viewport. */}
+            {/* Long German compounds have no natural break point. */}
             <Typography component="dt" sx={{ color: 'text.secondary', overflowWrap: 'break-word' }}>
               {entry.question}
             </Typography>

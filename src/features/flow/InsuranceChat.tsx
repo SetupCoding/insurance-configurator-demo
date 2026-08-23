@@ -15,9 +15,8 @@ type Props = {
 };
 
 /**
- * Top-level client component for the conversation. Owns the flow state and
- * submits the answers once the user confirms, surfacing loading, result and
- * error feedback (with a retry).
+ * The only `use client` boundary in the page. Everything interactive hangs off
+ * this one component, so the rest of the tree stays a Server Component.
  */
 export const InsuranceChat = ({ flow }: Props) => {
   const submission = useSubmitAnswers();
@@ -79,12 +78,11 @@ export const InsuranceChat = ({ flow }: Props) => {
               // from shrinking while a submission is pending.
               submission.isPending ? <CircularProgress size={20} color="inherit" /> : <SendIcon />
             }
-            // aria-disabled rather than the native attribute on purpose: a
-            // natively disabled button drops out of the tab order and stops
-            // being announced, which is the wrong thing to do to the control
-            // that is currently reporting progress. Double submission is
-            // prevented where it actually can be, by the synchronous guard in
-            // useSubmitAnswers, not by hoping the click cannot get through.
+            // aria-disabled, not the native attribute: a disabled button leaves
+            // the tab order and stops being announced, which is the wrong thing
+            // to do to the control that is reporting progress. The double submit
+            // is stopped by the synchronous guard in useSubmitAnswers, where it
+            // actually can be. See ADR 0010.
             onClick={() => submission.submit(answers)}
             aria-busy={submission.isPending}
             aria-disabled={submission.isPending}

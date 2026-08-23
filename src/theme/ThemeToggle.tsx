@@ -12,12 +12,10 @@ const sx = {
 } as const;
 
 /**
- * Toggles between the light and dark colour schemes. Rendered once, inside
- * the page header. `mode` is `undefined` during SSR and on the client's
- * first render (the actual preference lives in localStorage, which isn't
- * available server-side), settling to the real value once MUI reads it after
- * mount, so a disabled placeholder is shown until then to avoid a hydration
- * mismatch.
+ * `mode` is `undefined` during SSR and on the client's first render, because
+ * the stored preference lives in localStorage and the server cannot read it. It
+ * settles once MUI reads it after mount, so a placeholder holds the space until
+ * then rather than rendering an icon the first paint would have to correct.
  */
 export const ThemeToggle = () => {
   const { mode, setMode } = useColorScheme();

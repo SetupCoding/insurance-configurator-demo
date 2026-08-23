@@ -8,7 +8,6 @@ type Props = {
   onRetry?: () => void;
 };
 
-/** Announces an error and, optionally, offers a retry. */
 export const ErrorState = ({ message, onRetry }: Props) => {
   if (!message) return null;
 

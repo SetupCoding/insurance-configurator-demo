@@ -8,12 +8,10 @@ import { clearSelections, loadSelections, saveSelections } from './persistence';
 import { createFlowReducer, initFlowState, selectAnswers, selectSelections } from './reducer';
 
 /**
- * Drives the insurance conversation. Wraps the pure flow state machine in a
- * `useReducer`, restores any previously answered steps after mount, and
- * persists progress so a refresh does not lose the user's answers.
+ * Wraps the pure state machine, and owns the storage side of it.
  *
- * Pass `persist: false` once the conversation is over, which drops the stored
- * answers instead of leaving them behind.
+ * Pass `persist: false` once the conversation is over: the answers stay on
+ * screen but the stored copy goes away, so a reload starts fresh.
  */
 export function useInsuranceFlow(flow: Flow, { persist = true }: { persist?: boolean } = {}) {
   const reducer = useMemo(() => createFlowReducer(flow), [flow]);
@@ -21,9 +19,9 @@ export function useInsuranceFlow(flow: Flow, { persist = true }: { persist?: boo
   const [hydrated, setHydrated] = useState(false);
   const hasRestored = useRef(false);
 
-  // Restore persisted selections once, after mount. Doing this in an effect
-  // (rather than during init) keeps the server and client render identical and
-  // avoids a hydration mismatch.
+  // In an effect rather than during init, because the server has no storage to
+  // read: initialising from it would make the first client render differ from
+  // the server's and trip a hydration mismatch.
   useEffect(() => {
     if (hasRestored.current) return;
     hasRestored.current = true;

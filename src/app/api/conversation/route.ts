@@ -16,16 +16,15 @@ function fail(error: ErrorCode, status: number, detail?: string) {
 }
 
 /**
- * Accepts a completed conversation, checks it against the flow, and answers
- * with the choices resolved back to the wording they were offered under.
- *
- * This is a demo endpoint by design: it stores nothing and has no side effects,
- * so it is idempotent and needs neither an idempotency key nor deduplication.
- * What it does do is real: the reply is derived from the submitted path, so an
- * invented or tampered payload cannot produce one.
+ * Stores nothing, on purpose, which is what makes the operation idempotent and
+ * an idempotency key unnecessary (ADR 0009). The check is real all the same:
+ * the reply is derived from the submitted path, so a tampered payload cannot
+ * produce one.
  */
 export async function POST(request: Request) {
   const raw = await request.text();
+  // Encoded length, not string length: `raw.length` counts UTF-16 code units, so
+  // a body of multi-byte characters would slip past a byte limit measured on it.
   if (new TextEncoder().encode(raw).length > MAX_BODY_BYTES) {
     return fail('payload_too_large', 413);
   }

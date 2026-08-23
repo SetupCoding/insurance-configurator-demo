@@ -8,17 +8,15 @@ export type SubmissionValidation =
 /**
  * Replays a submission against the flow.
  *
- * `submissionSchema` can only say that a payload is a list of name/value
- * pairs. That is not the domain rule: for any set of choices exactly one
- * ordered sequence of answers is reachable, because each answer determines
- * which question comes next. Walking the graph is therefore the only way to
- * tell a real conversation from a hand-crafted payload, and it rejects
- * unknown names, repeated answers, a wrong order, values that were never
- * offered, a path that stops early and answers appended past the end, all
- * with the same single check.
+ * The rule this enforces is not a shape: each answer determines which question
+ * comes next, so for any set of choices exactly one ordered sequence of answers
+ * is reachable. Walking the graph is therefore the only way to tell a real
+ * conversation from a hand-crafted payload, and one walk rejects unknown names,
+ * repeats, wrong order, unoffered values, short paths and trailing extras
+ * alike.
  *
  * Returns the answers resolved back to the question and option wording, so a
- * caller can show what was submitted without trusting the client's copy of it.
+ * caller can report what was submitted without trusting the client's copy.
  */
 export function validateSubmission(flow: Flow, answers: Submission): SubmissionValidation {
   const byId = new Map<number, Step>(flow.map((step) => [step.id, step]));
