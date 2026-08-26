@@ -8,6 +8,9 @@ configuration back to you.
 nothing. Ground-up modern rebuild of a 2022 coding challenge of mine, built as a
 portfolio piece.
 
+### [→ Try it live](https://insurance-configurator-demo.vercel.app/)
+
+[![Live demo](https://img.shields.io/badge/live%20demo-vercel-000?logo=vercel&logoColor=white)](https://insurance-configurator-demo.vercel.app/)
 [![CI](https://github.com/SetupCoding/insurance-configurator-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/SetupCoding/insurance-configurator-demo/actions/workflows/ci.yml)
 
 | Start                                                                                 | Mid-conversation                                                                                      | Result                                                                                    |
@@ -193,10 +196,11 @@ what runs. Dependabot keeps npm, Actions and Docker dependencies current.
 
 ## Deploy
 
-Configured for [Vercel](https://vercel.com). `vercel.json` declares the
-framework, so importing the repository needs no build configuration and no
-environment variables. Every push to `main` deploys to production, and every
-pull request gets a preview URL.
+Live on [Vercel](https://vercel.com) at
+[insurance-configurator-demo.vercel.app](https://insurance-configurator-demo.vercel.app/).
+`vercel.json` declares the framework, so importing the repository needed no
+build configuration and no environment variables. Every push to `main` deploys
+to production, and every pull request gets a preview URL.
 
 Security headers come from `next.config.ts` rather than platform configuration,
 so they apply to the Docker image too. Standalone output is switched off on
