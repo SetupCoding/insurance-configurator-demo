@@ -135,7 +135,7 @@ to, so there is no separate backend to start.
 | `pnpm start`                        | Run the production build                                                    |
 | `pnpm lint` / `pnpm lint:fix`       | ESLint                                                                      |
 | `pnpm format` / `pnpm format:check` | Prettier                                                                    |
-| `pnpm typecheck`                    | `tsc --noEmit`                                                              |
+| `pnpm typecheck`                    | Next route types, then `tsc --noEmit`                                       |
 | `pnpm test` / `pnpm test:watch`     | Unit tests (Vitest + Testing Library)                                       |
 | `pnpm test:coverage`                | Unit tests with coverage, and the coverage gates                            |
 | `pnpm test:e2e`                     | Cross-browser flow and accessibility tests (Playwright), excludes `@visual` |
