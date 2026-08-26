@@ -21,18 +21,21 @@ jobs:
     name: Visual snapshots
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      # Pinned by digest, not only by tag: the same tag can be rebuilt with
+      # different font packages, which would silently invalidate every baseline
+      # in the repository while looking like an unchanged environment.
+      image: mcr.microsoft.com/playwright:v1.62.1-noble@sha256:dcc5531e97840b9b5e794f2814476b21571c5124a3fca2267d73041f56e7580e
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Run visual regression tests
         run: pnpm test:visual ${{ inputs.update_snapshots && '--update-snapshots' || '' }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: ${{ !cancelled() }}
         with:
           name: visual-report
@@ -40,7 +43,7 @@ jobs:
           if-no-files-found: ignore
       - name: Upload regenerated baselines
         if: ${{ !cancelled() && inputs.update_snapshots }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: visual-baselines
           path: e2e/visual.spec.ts-snapshots/

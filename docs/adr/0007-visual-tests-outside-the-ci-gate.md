@@ -17,9 +17,9 @@ Tag visual specs `@visual` (`e2e/visual.spec.ts`) and exclude them from the
 main e2e run: `test:e2e` runs `playwright test --grep-invert @visual`, so the
 required CI job (`ci.yml`) never runs them. They run instead via
 `pnpm test:visual`, and in CI only on demand through a separate
-`visual.yml` workflow pinned to the `mcr.microsoft.com/playwright` container
-image that matches the Playwright version in `package.json`, the same
-environment the baselines should be regenerated from.
+`visual.yml` workflow, pinned by digest to the `mcr.microsoft.com/playwright`
+image matching the Playwright version in `package.json`, the same environment
+the baselines should be regenerated from.
 
 ## Consequences
 
@@ -28,6 +28,10 @@ environment the baselines should be regenerated from.
   with `update_snapshots` and commit the `visual-baselines` artifact. The
   container is not optional, since a local run on Windows or macOS writes
   `-win32`/`-darwin` files that CI will never compare against.
+- The digest, not just the tag, is what makes that environment reproducible. A
+  tag can be rebuilt with different font packages, which changes rendering
+  while every line of the workflow still reads the same, so the baselines would
+  start failing with nothing in the diff to explain why.
 - Snapshots are held to the global 2% pixel tolerance. They previously allowed
   5% each, which is enough slack for a whole control to change unnoticed.
 - A pixel-ratio limit only catches what the per-pixel comparator considers

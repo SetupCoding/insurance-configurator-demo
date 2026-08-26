@@ -1,7 +1,8 @@
 # syntax=docker/dockerfile:1
 
 # ---- Base: Node + pnpm via Corepack ----------------------------------------
-FROM node:22-alpine AS base
+# Digest-pinned so a rebuilt tag cannot change the base image under a build.
+FROM node:22-alpine@sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32 AS base
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 ENV HUSKY=0

@@ -184,8 +184,9 @@ accessibility tests on every push and PR to `main`. A separate job builds the
 Docker image, waits for its own healthcheck and posts both a valid and a
 tampered path at it, because the other jobs run against a dev server and never
 touch the standalone bundle the image ships. Visual regression runs separately,
-on demand, in a pinned Playwright container. Dependabot keeps npm, Actions and
-Docker dependencies current.
+on demand, in a digest-pinned Playwright container. Every action is pinned to a
+commit SHA and both container images to a digest, so a moved tag cannot change
+what runs; Dependabot keeps npm, Actions and Docker dependencies current.
 
 ## Deploy
 
