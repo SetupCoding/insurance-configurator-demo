@@ -10,9 +10,13 @@ built as a portfolio piece.
 
 ## Screenshots
 
-| Start                                                               | Mid-conversation                                                                    | Result                                                                  |
-| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| ![Start of the conversation](docs/media/initial-chromium-linux.png) | ![Partway through the conversation](docs/media/mid-conversation-chromium-linux.png) | ![The validated configuration](docs/media/completed-chromium-linux.png) |
+| Start                                                                                 | Mid-conversation                                                                                      | Result                                                                                    |
+| ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| ![Start of the conversation](e2e/visual.spec.ts-snapshots/initial-chromium-linux.png) | ![Partway through the conversation](e2e/visual.spec.ts-snapshots/mid-conversation-chromium-linux.png) | ![The validated configuration](e2e/visual.spec.ts-snapshots/completed-chromium-linux.png) |
+
+Those three images are the Chromium visual-regression baselines, referenced
+where they live rather than copied into the README, so they cannot quietly
+drift out of date.
 
 ## What it does
 
