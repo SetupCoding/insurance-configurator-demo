@@ -4,7 +4,7 @@ export const QUESTIONS = {
   liability: 'Benötigen Sie eine Haftpflichtversicherung?',
   casco: 'Benötigen Sie eine Kasko?',
   cascoType: 'Welche Art von Kasko benötigen Sie?',
-  licensePlate: 'Welche Kennzeichenart benötigen Sie?',
+  licensePlateType: 'Welche Kennzeichenart benötigen Sie?',
 } as const;
 
 /** Clicks an option inside the question identified by its group label. */
@@ -16,7 +16,7 @@ export async function choose(page: Page, question: string, option: string) {
 export async function answerFlow(page: Page) {
   await choose(page, QUESTIONS.liability, 'Nein');
   await choose(page, QUESTIONS.casco, 'Nein');
-  await choose(page, QUESTIONS.licensePlate, 'Einzelkennzeichen');
+  await choose(page, QUESTIONS.licensePlateType, 'Einzelkennzeichen');
 }
 
 /** Walks the flow to completion, submits it, and waits for the result. */

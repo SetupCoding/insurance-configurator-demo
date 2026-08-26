@@ -49,7 +49,7 @@ test('walks through the flow to the validated configuration', async ({ page }) =
 
   await choose(page, QUESTIONS.liability, 'Ja');
   await choose(page, QUESTIONS.casco, 'Nein');
-  await choose(page, QUESTIONS.licensePlate, 'Einzelkennzeichen');
+  await choose(page, QUESTIONS.licensePlateType, 'Einzelkennzeichen');
   await page.getByRole('button', { name: 'Absenden' }).click();
 
   await expect(page.getByRole('heading', { name: 'Ihre Demo-Konfiguration' })).toBeVisible();
@@ -64,7 +64,7 @@ test('removes downstream steps when an earlier answer changes', async ({ page })
 
   await choose(page, QUESTIONS.casco, 'Nein');
   await expect(page.getByRole('heading', { name: QUESTIONS.cascoType })).toBeHidden();
-  await expect(page.getByRole('heading', { name: QUESTIONS.licensePlate })).toBeVisible();
+  await expect(page.getByRole('heading', { name: QUESTIONS.licensePlateType })).toBeVisible();
 });
 
 test('keeps downstream answers when the same option is clicked again', async ({ page }) => {
@@ -73,13 +73,13 @@ test('keeps downstream answers when the same option is clicked again', async ({ 
   await choose(page, QUESTIONS.liability, 'Ja');
   await choose(page, QUESTIONS.casco, 'Ja');
   await choose(page, QUESTIONS.cascoType, 'Vollkasko');
-  await expect(page.getByRole('heading', { name: QUESTIONS.licensePlate })).toBeVisible();
+  await expect(page.getByRole('heading', { name: QUESTIONS.licensePlateType })).toBeVisible();
 
   // Clicking an already-selected earlier answer decides nothing new, so the
   // questions it led to must stay.
   await choose(page, QUESTIONS.casco, 'Ja');
   await expect(page.getByRole('heading', { name: QUESTIONS.cascoType })).toBeVisible();
-  await expect(page.getByRole('heading', { name: QUESTIONS.licensePlate })).toBeVisible();
+  await expect(page.getByRole('heading', { name: QUESTIONS.licensePlateType })).toBeVisible();
 });
 
 test('header does not overlap the title on a narrow viewport', async ({ page }) => {
@@ -137,7 +137,7 @@ test('shows an error and recovers when submission fails then succeeds', async ({
 
   await choose(page, QUESTIONS.liability, 'Nein');
   await choose(page, QUESTIONS.casco, 'Nein');
-  await choose(page, QUESTIONS.licensePlate, 'Einzelkennzeichen');
+  await choose(page, QUESTIONS.licensePlateType, 'Einzelkennzeichen');
   await page.getByRole('button', { name: 'Absenden' }).click();
 
   await expect(page.getByText('Ein Fehler ist aufgetreten.')).toBeVisible();
