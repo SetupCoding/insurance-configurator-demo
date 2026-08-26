@@ -21,9 +21,14 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
-  // Emit a standalone server bundle so the Docker image can ship just the
-  // server and its minimal dependencies.
-  output: 'standalone',
+  // Standalone output exists for the Docker image, which needs a
+  // self-contained server plus the dependencies Next traces for it. Vercel
+  // builds its own output and never consumes that, while its packaging step
+  // does read the trace files this mode emits, and fails there with an ENOENT
+  // on next-server.js.nft.json. That broke the first deploy on 16.3.1, and
+  // 16.3.2 ships no fix for it. Emitting standalone only where something
+  // actually consumes it keeps one deploy target from breaking the other.
+  output: process.env.VERCEL ? undefined : 'standalone',
   // Don't scaffold AGENTS.md/CLAUDE.md on every `next dev`.
   agentRules: false,
   poweredByHeader: false,
