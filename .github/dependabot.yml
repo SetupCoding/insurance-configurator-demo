@@ -7,11 +7,34 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+    ignore:
+      # @types/node describes the runtime this project actually runs on, which
+      # is the 24 line (see engines in package.json, .nvmrc and the Dockerfile).
+      # Taking the newest published major would document a Node nothing here
+      # uses. Bump it in the same change that moves the runtime, never alone.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+
   - package-ecosystem: docker
     directory: /
     schedule:
       interval: weekly
+    ignore:
+      # Dependabot has no notion of LTS, it only sees that 26 is newer than 24.
+      # This image ships a production server, so it follows Active LTS, and
+      # today node:lts-alpine and node:24-alpine are the same digest. Blocking
+      # the major keeps it on that line instead of drifting onto Current every
+      # six months.
+      #
+      # Node majors are not a thing to accept unattended anyway: the version
+      # here has to stay in step with .nvmrc, engines, and node-version in both
+      # workflows, and a Dependabot PR only ever touches the Dockerfile.
+      #
+      # Revisit when 26 reaches LTS, expected October 2026.
+      - dependency-name: 'node'
+        update-types: ['version-update:semver-major']
