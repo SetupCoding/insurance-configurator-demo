@@ -6,7 +6,7 @@ decision tree, then reads the configuration back to you. It gives no advice and
 stores nothing. Ground-up modern rebuild of a 2022 coding challenge of mine,
 built as a portfolio piece.
 
-[![CI](https://github.com/SetupCoding/chat-bot-anton-schmidt/actions/workflows/ci.yml/badge.svg)](https://github.com/SetupCoding/chat-bot-anton-schmidt/actions/workflows/ci.yml)
+[![CI](https://github.com/SetupCoding/insurance-configurator-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/SetupCoding/insurance-configurator-demo/actions/workflows/ci.yml)
 
 ## Screenshots
 

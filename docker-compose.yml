@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    image: chat-bot-anton-schmidt
+    image: insurance-configurator-demo
     ports:
       - '3000:3000'
     environment:

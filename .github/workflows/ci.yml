@@ -79,9 +79,9 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Build image
-        run: docker build -t chat-bot-anton-schmidt:ci .
+        run: docker build -t insurance-configurator-demo:ci .
       - name: Start the container
-        run: docker run -d --name web -p 3000:3000 chat-bot-anton-schmidt:ci
+        run: docker run -d --name web -p 3000:3000 insurance-configurator-demo:ci
       - name: Wait for the image's own healthcheck
         run: |
           for _ in $(seq 1 30); do
