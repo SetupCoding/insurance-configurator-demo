@@ -108,9 +108,9 @@ Product decisions, reading the diffs, judging the test output and final
 acceptance are mine.
 
 The early commit sequence was tidied up after the fact for presentation, so it
-does not reflect the organic order the work happened in. From the commit that
-added this section onwards, the history is left alone: no backdating, no amend,
-no squash, no force-push.
+does not reflect the organic order the work happened in. Nothing is backdated,
+and from this commit on the history is left alone: no amend, no squash, no
+force-push.
 
 ## Getting started
 
