@@ -2,7 +2,7 @@ import type { Flow, Step } from '@/lib/schema/flow';
 
 import type { Answer, FlowAction, FlowState, Selection } from './types';
 
-export function findStepById(flow: Flow, id: number): Step | undefined {
+function findStepById(flow: Flow, id: number): Step | undefined {
   return flow.find((step) => step.id === id);
 }
 

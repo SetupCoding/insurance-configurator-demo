@@ -10,14 +10,14 @@ import { optionValueSchema } from './flow';
  */
 
 /** One answered question, carrying the wording the user actually saw. */
-export const configurationEntrySchema = z.object({
+const configurationEntrySchema = z.object({
   name: z.string().min(1),
   question: z.string().min(1),
   value: optionValueSchema,
   label: z.string().min(1),
 });
 
-export const configurationSchema = z.array(configurationEntrySchema).min(1);
+const configurationSchema = z.array(configurationEntrySchema).min(1);
 
 export const acceptedResponseSchema = z.object({
   status: z.literal('accepted'),
@@ -29,7 +29,7 @@ export const acceptedResponseSchema = z.object({
  * the UI owns the German wording, so a new locale never means changing the
  * server.
  */
-export const errorCodeSchema = z.enum([
+const errorCodeSchema = z.enum([
   'malformed_json',
   'payload_too_large',
   'invalid_submission',

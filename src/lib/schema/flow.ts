@@ -9,17 +9,17 @@ import { z } from 'zod';
  * each offering a set of options that point to the next step by id).
  */
 
-export const valueTypeSchema = z.enum(['boolean', 'number', 'string']);
+const valueTypeSchema = z.enum(['boolean', 'number', 'string']);
 
 /** The only rendering mode the UI implements. */
-export const uiTypeSchema = z.literal('button');
+const uiTypeSchema = z.literal('button');
 
 export const optionValueSchema = z.union([z.boolean(), z.number(), z.string()]);
 
 /** The id of the next step, or `false` to signal the end of the flow. */
-export const nextIdSchema = z.union([z.number().int(), z.literal(false)]);
+const nextIdSchema = z.union([z.number().int(), z.literal(false)]);
 
-export const valueOptionSchema = z.object({
+const valueOptionSchema = z.object({
   nextId: nextIdSchema,
   value: optionValueSchema,
   text: z.string().min(1),
@@ -122,10 +122,10 @@ function collectStepIssues(step: Step, index: number): FlowIssue[] {
  * what guarantees every conversation terminates: a walk can never revisit a
  * step, so it must eventually reach an option with `nextId: false`.
  *
- * Kept as a pure function returning issues so each invariant is testable on
- * its own, and wired into `flowSchema` so `parse` guarantees all of them.
+ * Collects every issue instead of throwing at the first, so a malformed flow
+ * reports all of its problems at once, each against the path it sits at.
  */
-export function collectFlowIssues(steps: Step[]): FlowIssue[] {
+function collectFlowIssues(steps: Step[]): FlowIssue[] {
   // Load-bearing: Zod runs superRefine even after `.min(1)` has already failed,
   // so an empty array reaches here and the graph walk below would read
   // `steps[0]` off the end.

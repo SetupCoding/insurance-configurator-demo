@@ -9,7 +9,7 @@ import { optionValueSchema } from './flow';
  * flow could actually have produced cannot be expressed here, because it
  * depends on the flow; `validateSubmission` in lib/domain answers that.
  */
-export const answerSchema = z.object({
+const answerSchema = z.object({
   name: z.string().min(1),
   value: optionValueSchema,
 });

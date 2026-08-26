@@ -2,7 +2,7 @@ import type { Submission } from '@/lib/schema/answer';
 import type { Configuration, ConfigurationEntry } from '@/lib/schema/conversation';
 import type { Flow, Step, ValueOption } from '@/lib/schema/flow';
 
-export type SubmissionValidation =
+type SubmissionValidation =
   { ok: true; configuration: Configuration } | { ok: false; detail: string };
 
 /**

@@ -56,7 +56,6 @@ export function useInsuranceFlow(flow: Flow, { persist = true }: { persist?: boo
 
   return {
     steps: state.steps,
-    status: state.status,
     isFinished: state.status === 'completed',
     hasAnswers,
     answers,

@@ -1,6 +1,6 @@
 import type { OptionValue, Step } from '@/lib/schema/flow';
 
-export type FlowStatus = 'in_progress' | 'completed';
+type FlowStatus = 'in_progress' | 'completed';
 
 export type AnsweredStep = {
   step: Step;
