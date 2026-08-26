@@ -114,7 +114,7 @@ no squash, no force-push.
 
 ## Getting started
 
-Requires Node 22 and pnpm 10 (see `.nvmrc` and `packageManager` in
+Requires Node 24 and pnpm 10 (see `.nvmrc` and `packageManager` in
 `package.json`).
 
 ```bash
