@@ -30,7 +30,8 @@ const nextConfig: NextConfig = {
   // 16.3.2 ships no fix for it. Emitting standalone only where something
   // actually consumes it keeps one deploy target from breaking the other.
   output: process.env.VERCEL ? undefined : 'standalone',
-  // Don't scaffold AGENTS.md/CLAUDE.md on every `next dev`.
+  // AGENTS.md and CLAUDE.md are hand-written here, so scaffolding is off: this
+  // keeps `next dev` from regenerating over them.
   agentRules: false,
   poweredByHeader: false,
   async headers() {

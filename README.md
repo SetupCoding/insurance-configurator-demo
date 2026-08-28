@@ -155,7 +155,9 @@ src/
 
 ## Decisions
 
-Each one is a short ADR in [docs/adr/](docs/adr/).
+Each one is a short ADR in [docs/adr/](docs/adr/). The conventions they imply,
+plus the traps that are not visible in the code, are collected in
+[AGENTS.md](AGENTS.md).
 
 | #                                                                     | Decision                                                            |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------- |
@@ -249,6 +251,29 @@ the modernisation in a compound-engineering workflow, and Codex agents reviewed
 the result adversarially afterwards. The agents contributed analysis,
 implementation drafts, tests and documentation review. Product decisions, reading
 the diffs, judging the test output and final acceptance are mine.
+
+That last sentence is cheap to write, so here is where it can be checked instead:
+
+- **The decisions are written down, including the ones I got wrong.**
+  [docs/adr/](docs/adr/) carries one short ADR per decision, with the argument
+  rather than the conclusion.
+  [0010](docs/adr/0010-fetch-plus-a-local-submission-hook.md) supersedes half of
+  an earlier one after I changed my mind, and
+  [0009](docs/adr/0009-a-stateless-demo-that-really-validates.md) corrects a
+  claim of mine that a reviewer was right to push on. An ADR is where I settled a
+  question, which makes it the place to test whether I understood it.
+- **[AGENTS.md](AGENTS.md) is the constraint file the agents work under.** I
+  wrote it, and it is the shortest honest summary of what I insist on: verify
+  rather than assume, never widen the CSP, a green test is not proof.
+- **The gates arbitrate, not my judgement and not an agent's.** Lint, types,
+  unit tests with per-module coverage floors, a production build, cross-browser
+  end-to-end tests, and a CI job that builds the container image and posts real
+  requests at it.
+- **Where a suggestion was right for the wrong reason, the reason got fixed.**
+  The clearest example is in ADR
+  [0012](docs/adr/0012-localised-flow-data-and-a-locale-on-the-wire.md): a
+  passing test turned out to be passing by accident, and finding out why changed
+  where the assertion lives.
 
 The early commit sequence was tidied up after the fact for presentation, so it
 does not reflect the organic order the work happened in. Nothing is backdated,
