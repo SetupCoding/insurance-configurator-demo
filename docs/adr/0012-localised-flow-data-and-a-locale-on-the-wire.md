@@ -116,17 +116,40 @@ for whoever holds the logs and is never shown.
 - The header has a locale link, so `/en` is reachable without editing the URL.
   It is a link and not a toggle because changing locale is navigation: it works
   before JavaScript, survives being opened in a new tab, and can be crawled.
-- That link is a plain anchor rather than `next/link`, so the browser replaces
-  the document instead of patching it. Partly because that is what a locale
-  change is, with `html[lang]`, the metadata, the alternates and every string
-  changing together, and assistive technology reading the language of the
-  document it parsed. Mostly because the soft navigation was broken: it remounted
-  the `[locale]` layout and `AppRouterCacheProvider` with it, so a second Emotion
-  cache was built while the first tore its global styles down. CssBaseline was
-  left as empty `<style>` tags, the page lost its background, and the theme
-  toggle looked dead because it still flipped `data-mui-color-scheme` with
-  nothing to repaint. The whole suite stayed green throughout, because nothing
-  in it asked whether the page was still painted. There is a test for it now.
+- The document shell lives in the root layout, above `[locale]`, and only what
+  the language actually affects lives inside the segment. This was not the
+  original arrangement and the reason it changed is worth recording.
+
+  With the shell inside `[locale]`, switching language remounted it, and
+  `AppRouterCacheProvider` with it: a second Emotion cache was built while the
+  first removed its global styles, CssBaseline was left as empty `<style>` tags,
+  and the page lost its background. The theme toggle looked dead because it kept
+  flipping `data-mui-color-scheme` with nothing left to repaint. The whole suite
+  stayed green, because nothing in it asked whether the page was still painted.
+
+  Making the link a plain anchor fixed that by replacing the document, and
+  introduced a worse symptom: a fresh document is `color-scheme: dark` until
+  MUI's script reads localStorage and corrects it, because `:root` carries the
+  default scheme and the script runs in the body. Anyone on the light scheme got
+  a black flash on every switch. Hoisting the shell removes both, because a
+  language change is now a client-side navigation again and there is no new
+  document to mispaint.
+
+  What it costs: the root layout cannot see the route parameter, and Next does
+  not re-render it when only that parameter changes, so `html[lang]` comes from
+  a header the proxy sets and `LocaleLang` keeps it in step across a soft
+  switch. Every document the server hands out is already correct without that
+  component, which is what matters for crawlers.
+
+  What it does not fix: the same black flash on a plain reload while in the light
+  scheme, which is a property of any fresh document rather than of switching
+  language. Closing that needs the server to know the scheme, which means a
+  cookie, which is a storage decision this app has not taken.
+
+  There are tests for all of it: that the page is still painted after a switch,
+  that the toggle still repaints, that the document was not replaced, and that
+  `lang` follows.
+
 - Every visual baseline now exists twice, once per locale, with the locale in
   the filename. German compounds are longer than their English equivalents
   ("Haftpflichtversicherung" against "liability insurance"), so the two languages

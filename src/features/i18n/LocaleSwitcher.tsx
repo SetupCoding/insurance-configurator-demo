@@ -2,6 +2,7 @@
 
 import TranslateIcon from '@mui/icons-material/Translate';
 import { Button } from '@mui/material';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 
@@ -40,16 +41,13 @@ function withLocale(pathname: string, locale: Locale): string {
  * screen reader announces "English" in English rather than reading it with
  * German pronunciation rules.
  *
- * Deliberately a plain anchor and not `next/link`, so the browser replaces the
- * document instead of patching it. That matches what a locale change actually
- * is (`html[lang]`, the metadata, the alternates and every string change at
- * once, and assistive technology reads the language of the document it parsed),
- * and it avoids a real bug. Under a client-side navigation the `[locale]` layout
- * remounts, and `AppRouterCacheProvider` with it, so a second Emotion cache is
- * built while the first tears its global styles down. CssBaseline is left as
- * empty `<style>` tags, the page loses its background, and the theme toggle
- * looks broken because it still flips `data-mui-color-scheme` with nothing left
- * to repaint.
+ * A client-side navigation, which is only safe because the document shell lives
+ * in the root layout above `[locale]`. When the shell sat inside this segment,
+ * switching remounted `AppRouterCacheProvider` with it, so a second Emotion
+ * cache was built while the first tore its global styles down and the page lost
+ * its background. Replacing the whole document avoided that too, at the cost of
+ * a black flash for anyone on the light scheme, because a fresh document is
+ * `color-scheme: dark` until MUI's script corrects it. See ADR 0012.
  */
 export const LocaleSwitcher = () => {
   const t = useTranslations('locale');
@@ -59,7 +57,7 @@ export const LocaleSwitcher = () => {
 
   return (
     <Button
-      component="a"
+      component={Link}
       href={withLocale(pathname, target)}
       hrefLang={target}
       lang={target}

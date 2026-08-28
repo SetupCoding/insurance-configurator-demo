@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
-import { isLocale } from '@/lib/i18n/locales';
+import { isLocale, LOCALE_HEADER } from '@/lib/i18n/locales';
 import { negotiateLocale } from '@/lib/i18n/negotiate';
 import { contentSecurityPolicy, createNonce, CSP_HEADER, NONCE_HEADER } from '@/lib/security/csp';
 
@@ -63,6 +63,9 @@ export function proxy(request: NextRequest) {
   const headers = new Headers(request.headers);
   headers.set(CSP_HEADER, policy);
   headers.set(NONCE_HEADER, nonce);
+  // The root layout renders <html lang>, and sits above [locale] so that it
+  // survives a language change, so the route parameter is out of its reach.
+  headers.set(LOCALE_HEADER, firstSegment);
 
   const response = NextResponse.next({ request: { headers } });
   response.headers.set(CSP_HEADER, policy);

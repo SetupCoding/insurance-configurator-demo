@@ -121,6 +121,15 @@ test.describe('translation', () => {
     await page.goto('/en');
     await expect(page.getByRole('heading', { name: EN.questions.liability })).toBeVisible();
 
+    // Survives a client-side navigation and not a document replacement, which is
+    // what the assertion after the click checks for. A full reload is what the
+    // shell used to need, and it cost a black flash for anyone on the light
+    // scheme, because a fresh document is color-scheme: dark until MUI's script
+    // corrects it.
+    await page.evaluate(() => {
+      (window as unknown as { __sameDocument?: boolean }).__sameDocument = true;
+    });
+
     const toGerman = page.getByRole('link', { name: EN.otherLocale });
     await expect(toGerman).toHaveAttribute('href', '/de');
     await toGerman.click();
@@ -129,6 +138,14 @@ test.describe('translation', () => {
 
     expect(new URL(page.url()).pathname).toBe('/de');
     await expect(page.getByRole('heading', { name: DE.questions.liability })).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => (window as unknown as { __sameDocument?: boolean }).__sameDocument === true,
+      ),
+    ).toBe(true);
+    // The root layout renders lang and is not re-rendered for a parameter
+    // change, so LocaleLang is the only thing keeping this true here.
+    await expect(page.locator('html')).toHaveAttribute('lang', 'de');
 
     // And back, which is the same control pointing the other way.
     await page.getByRole('link', { name: DE.otherLocale }).click();

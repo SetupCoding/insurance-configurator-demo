@@ -29,6 +29,14 @@ export type Locale = (typeof LOCALES)[number];
  */
 export const DEFAULT_LOCALE: Locale = 'en';
 
+/**
+ * Where the proxy tells the root layout which locale the request resolved to.
+ *
+ * The shell lives above the [locale] segment so that switching language does not
+ * remount it, which means it cannot read the route parameter. See ADR 0012.
+ */
+export const LOCALE_HEADER = 'x-locale';
+
 export function isLocale(value: unknown): value is Locale {
   return typeof value === 'string' && (LOCALES as readonly string[]).includes(value);
 }
