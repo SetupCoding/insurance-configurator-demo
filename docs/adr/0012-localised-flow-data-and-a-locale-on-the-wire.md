@@ -116,6 +116,17 @@ for whoever holds the logs and is never shown.
 - The header has a locale link, so `/en` is reachable without editing the URL.
   It is a link and not a toggle because changing locale is navigation: it works
   before JavaScript, survives being opened in a new tab, and can be crawled.
+- That link is a plain anchor rather than `next/link`, so the browser replaces
+  the document instead of patching it. Partly because that is what a locale
+  change is, with `html[lang]`, the metadata, the alternates and every string
+  changing together, and assistive technology reading the language of the
+  document it parsed. Mostly because the soft navigation was broken: it remounted
+  the `[locale]` layout and `AppRouterCacheProvider` with it, so a second Emotion
+  cache was built while the first tore its global styles down. CssBaseline was
+  left as empty `<style>` tags, the page lost its background, and the theme
+  toggle looked dead because it still flipped `data-mui-color-scheme` with
+  nothing to repaint. The whole suite stayed green throughout, because nothing
+  in it asked whether the page was still painted. There is a test for it now.
 - Every visual baseline now exists twice, once per locale, with the locale in
   the filename. German compounds are longer than their English equivalents
   ("Haftpflichtversicherung" against "liability insurance"), so the two languages

@@ -85,7 +85,39 @@ test.describe('translation', () => {
     await expect(page.getByText(EN.questions.liability)).toBeHidden();
   });
 
-  test('switches locale without leaving the page, via a real link', async ({ page }) => {
+  test('keeps the theme painted and working across a locale switch', async ({ page }) => {
+    // Regression. Switching locale through next/link remounted the [locale]
+    // layout and AppRouterCacheProvider with it, so a second Emotion cache was
+    // built while the first tore its global styles down. CssBaseline was left as
+    // empty <style> tags: the page lost its background and the toggle looked
+    // dead, because it still flipped data-mui-color-scheme with nothing to
+    // repaint. Every other test passed throughout, because none of them looked
+    // at whether anything was actually painted.
+    const background = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+
+    await page.goto('/en');
+    const before = await background();
+    expect(before).not.toBe('rgba(0, 0, 0, 0)');
+
+    await page.getByRole('link', { name: EN.otherLocale }).click();
+    await page.waitForURL('**/de');
+    await expect(page.getByRole('heading', { name: DE.questions.liability })).toBeVisible();
+    // Neither the URL nor the heading is a safe moment to sample. The theme
+    // eases its background change, so losing the global styles showed up as a
+    // fade to transparent over about 300ms rather than all at once, and an
+    // earlier sample catches the old colour on its way out and passes whatever
+    // the page settles on. Wait past the transition instead.
+    await page.waitForTimeout(600);
+
+    // The global styles survived, and the scheme came across with them.
+    expect(await background()).toBe(before);
+
+    // And the toggle still repaints, which is the half that looked broken.
+    await page.getByRole('button', { name: DE.themeToggle }).click();
+    await expect.poll(background).not.toBe(before);
+  });
+
+  test('switches locale via a real link, in both directions', async ({ page }) => {
     await page.goto('/en');
     await expect(page.getByRole('heading', { name: EN.questions.liability })).toBeVisible();
 

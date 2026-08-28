@@ -2,7 +2,6 @@
 
 import TranslateIcon from '@mui/icons-material/Translate';
 import { Button } from '@mui/material';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 
@@ -40,6 +39,17 @@ function withLocale(pathname: string, locale: Locale): string {
  * It is labelled in the language it leads to, and carries `lang` to match, so a
  * screen reader announces "English" in English rather than reading it with
  * German pronunciation rules.
+ *
+ * Deliberately a plain anchor and not `next/link`, so the browser replaces the
+ * document instead of patching it. That matches what a locale change actually
+ * is (`html[lang]`, the metadata, the alternates and every string change at
+ * once, and assistive technology reads the language of the document it parsed),
+ * and it avoids a real bug. Under a client-side navigation the `[locale]` layout
+ * remounts, and `AppRouterCacheProvider` with it, so a second Emotion cache is
+ * built while the first tears its global styles down. CssBaseline is left as
+ * empty `<style>` tags, the page loses its background, and the theme toggle
+ * looks broken because it still flips `data-mui-color-scheme` with nothing left
+ * to repaint.
  */
 export const LocaleSwitcher = () => {
   const t = useTranslations('locale');
@@ -49,7 +59,7 @@ export const LocaleSwitcher = () => {
 
   return (
     <Button
-      component={Link}
+      component="a"
       href={withLocale(pathname, target)}
       hrefLang={target}
       lang={target}
