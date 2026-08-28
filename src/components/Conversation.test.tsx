@@ -11,12 +11,12 @@ const steps: AnsweredStep[] = [
     step: {
       id: 100,
       name: 'liability',
-      text: 'Frage eins?',
+      text: 'Question one?',
       uiType: 'button',
       valueType: 'boolean',
       valueOptions: [
-        { nextId: 200, value: true, text: 'Ja' },
-        { nextId: 200, value: false, text: 'Nein' },
+        { nextId: 200, value: true, text: 'Yes' },
+        { nextId: 200, value: false, text: 'No' },
       ],
     },
     selectedValue: true,
@@ -25,7 +25,7 @@ const steps: AnsweredStep[] = [
     step: {
       id: 200,
       name: 'casco',
-      text: 'Frage zwei?',
+      text: 'Question two?',
       uiType: 'button',
       valueType: 'string',
       valueOptions: [{ nextId: false, value: 'a', text: 'Option A' }],
@@ -38,8 +38,8 @@ describe('Conversation', () => {
   it('renders every visible step as a question', () => {
     renderWithTheme(<Conversation steps={steps} disabled={false} onSelect={vi.fn()} />);
 
-    expect(screen.getByRole('heading', { name: 'Frage eins?' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Frage zwei?' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Question one?' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Question two?' })).toBeInTheDocument();
   });
 
   it('reports the step id and value when an option is chosen', async () => {

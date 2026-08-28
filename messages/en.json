@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "title": "Insurance configurator",
+    "description": "A technical demo of an insurance configurator. No advice, nothing stored."
+  },
+  "layout": {
+    "skipToContent": "Skip to content"
+  },
+  "chat": {
+    "title": "Insurance configurator",
+    "subtitle": "A technical demo, not insurance advice. Your answers are sent to the server to be checked, and are neither stored nor processed any further.",
+    "submit": "Submit",
+    "submitting": "Sending…"
+  },
+  "summary": {
+    "heading": "Your demo configuration",
+    "note": "Checked against the conversation and then discarded. Nothing was stored and nothing was processed any further."
+  },
+  "reset": {
+    "action": "Start over",
+    "confirmTitle": "Start over?",
+    "confirmBody": "The answers you have given so far will be lost.",
+    "cancel": "Cancel",
+    "confirm": "Start over"
+  },
+  "error": {
+    "heading": "Something went wrong.",
+    "hint": "Please try again in a few minutes.",
+    "retry": "Submit again",
+    "malformed_json": "The request was not well formed.",
+    "payload_too_large": "The request was too large.",
+    "invalid_submission": "The answers were incomplete or malformed.",
+    "invalid_path": "The answers do not match the conversation. Please start over.",
+    "unsupported_locale": "The requested language is not supported.",
+    "unexpected_response": "The server replied in an unexpected shape.",
+    "transport": "The submission failed."
+  },
+  "theme": {
+    "toLight": "Switch to the light theme",
+    "toDark": "Switch to the dark theme"
+  },
+  "locale": {
+    "label": "Language",
+    "de": "Deutsch",
+    "en": "English"
+  }
+}

@@ -2,11 +2,13 @@ import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { getFlow } from '@/lib/data/flow';
+import { localizeFlow } from '@/lib/domain/localizeFlow';
 
 import { loadSelections, saveSelections } from './persistence';
 import { useInsuranceFlow } from './useInsuranceFlow';
 
-const flow = getFlow();
+// Resolved to one locale, which is what every consumer below the server sees.
+const flow = localizeFlow(getFlow(), 'de');
 
 describe('useInsuranceFlow', () => {
   it('starts on the first step', () => {

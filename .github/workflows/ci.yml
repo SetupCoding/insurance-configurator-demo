@@ -104,6 +104,33 @@ jobs:
             -H 'Content-Type: application/json' \
             -d '[{"name":"liability","value":false},{"name":"cascoType","value":"full"}]')
           test "$code" = "422"
+      # German is not the default, so a German reply proves the query parameter
+      # is read and that the bundled fixture carries the translation. A missing
+      # one fails at import, which would have killed the container already.
+      - name: Answer in the locale the request asks for
+        run: |
+          body=$(curl -s -X POST 'http://localhost:3000/api/conversation?locale=de' \
+            -H 'Content-Type: application/json' \
+            -d '[{"name":"liability","value":false},{"name":"casco","value":false},{"name":"licensePlateType","value":"ekz"}]')
+          echo "$body" | grep -q 'Benötigen Sie eine Haftpflichtversicherung?'
+      - name: Reject a locale the app does not ship
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST 'http://localhost:3000/api/conversation?locale=fr' \
+            -H 'Content-Type: application/json' \
+            -d '[{"name":"liability","value":false}]')
+          test "$code" = "422"
+      # Exercises the proxy inside the image, which nothing else in this job does.
+      - name: Redirect a bare path to a negotiated locale
+        run: |
+          location=$(curl -s -o /dev/null -w '%{redirect_url}' -H 'Accept-Language: de-AT' http://localhost:3000/)
+          test "$location" = "http://localhost:3000/de"
+      # curl owns Accept-Language, which no browser lets a test do: Chromium
+      # ignores an overridden one and WebKit appends the OS locale. So the
+      # fallback is asserted here rather than in the e2e suite.
+      - name: Fall back to the default locale for an unsupported language
+        run: |
+          location=$(curl -s -o /dev/null -w '%{redirect_url}' -H 'Accept-Language: fr-FR,fr;q=0.9' http://localhost:3000/)
+          test "$location" = "http://localhost:3000/en"
       - name: Container logs
         if: failure()
         run: docker logs web

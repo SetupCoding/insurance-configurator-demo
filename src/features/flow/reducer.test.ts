@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
 import { getFlow } from '@/lib/data/flow';
+import { localizeFlow } from '@/lib/domain/localizeFlow';
 
 import { createFlowReducer, initFlowState, selectAnswers } from './reducer';
 import type { FlowState } from './types';
 
-const flow = getFlow();
+// Resolved to one locale, which is what every consumer below the server sees.
+const flow = localizeFlow(getFlow(), 'de');
 const reducer = createFlowReducer(flow);
 
 /** Applies a sequence of option selections starting from the initial state. */

@@ -2,6 +2,7 @@
 
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { Box, Button, Typography } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { useRef } from 'react';
 
 // Deliberately not ICON_LABEL_ALIGNMENT: this is a small text button, whose
@@ -20,9 +21,10 @@ type Props = {
  * The native <dialog> via showModal() rather than a hand-rolled modal: focus
  * trapping, Escape-to-close and the modal semantics come for free. Leaving
  * autoFocus unset is deliberate too, since showModal() then focuses the first
- * button, so a stray Enter hits "Abbrechen" rather than confirming.
+ * button, so a stray Enter cancels rather than confirming.
  */
 export const ResetButton = ({ onConfirm }: Props) => {
+  const t = useTranslations('reset');
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   const close = () => dialogRef.current?.close();
@@ -39,7 +41,7 @@ export const ResetButton = ({ onConfirm }: Props) => {
         size="small"
         sx={buttonSx}
       >
-        Neu starten
+        {t('action')}
       </Button>
       <Box
         component="dialog"
@@ -64,13 +66,13 @@ export const ResetButton = ({ onConfirm }: Props) => {
       >
         <Box sx={{ p: 3 }}>
           <Typography id="reset-dialog-title" variant="h3" gutterBottom>
-            Neu starten?
+            {t('confirmTitle')}
           </Typography>
-          <Typography sx={{ mb: 3 }}>Ihre bisherigen Angaben gehen dabei verloren.</Typography>
+          <Typography sx={{ mb: 3 }}>{t('confirmBody')}</Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-            <Button onClick={close}>Abbrechen</Button>
+            <Button onClick={close}>{t('cancel')}</Button>
             <Button variant="contained" onClick={confirm}>
-              Neu starten
+              {t('confirm')}
             </Button>
           </Box>
         </Box>

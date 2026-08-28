@@ -1,90 +1,94 @@
 import { expect, test } from '@playwright/test';
 
-import { answerFlow, choose, completeFlow, QUESTIONS } from './helpers';
+import { answerFlow, choose, completeFlow, COPY, QUESTIONS } from './helpers';
+
+const EN = COPY.en;
 
 test('shows the first question on load', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/en');
 
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'Versicherungs-Konfigurator' }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: EN.title })).toBeVisible();
   await expect(page.getByRole('heading', { name: QUESTIONS.liability })).toBeVisible();
   await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeHidden();
 });
 
-test('does not submit until "Absenden" is clicked, and answers stay editable', async ({ page }) => {
-  await page.goto('/');
+test('does not submit until the submit button is clicked, and answers stay editable', async ({
+  page,
+}) => {
+  await page.goto('/en');
 
   await answerFlow(page);
 
-  await expect(page.getByRole('button', { name: 'Absenden' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Ihre Demo-Konfiguration' })).toBeHidden();
+  await expect(page.getByRole('button', { name: EN.submit })).toBeVisible();
+  await expect(page.getByRole('heading', { name: EN.summary })).toBeHidden();
   await expect(
-    page.getByRole('group', { name: QUESTIONS.liability }).getByRole('button', { name: 'Ja' }),
+    page
+      .getByRole('group', { name: QUESTIONS.liability })
+      .getByRole('button', { name: EN.options.yes }),
   ).toBeEnabled();
 });
 
 test('confirms before resetting the conversation', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/en');
 
-  await choose(page, QUESTIONS.liability, 'Ja');
-  await page.getByRole('button', { name: 'Neu starten' }).click();
+  await choose(page, QUESTIONS.liability, EN.options.yes);
+  await page.getByRole('button', { name: EN.reset }).click();
 
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
 
   // Cancelling leaves the conversation untouched.
-  await dialog.getByRole('button', { name: 'Abbrechen' }).click();
+  await dialog.getByRole('button', { name: EN.cancel }).click();
   await expect(dialog).toBeHidden();
   await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeVisible();
 
   // Confirming resets to the first question.
-  await page.getByRole('button', { name: 'Neu starten' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Neu starten' }).click();
+  await page.getByRole('button', { name: EN.reset }).click();
+  await page.getByRole('dialog').getByRole('button', { name: EN.reset }).click();
   await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeHidden();
 });
 
 test('walks through the flow to the validated configuration', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/en');
 
-  await choose(page, QUESTIONS.liability, 'Ja');
-  await choose(page, QUESTIONS.casco, 'Nein');
-  await choose(page, QUESTIONS.licensePlateType, 'Einzelkennzeichen');
-  await page.getByRole('button', { name: 'Absenden' }).click();
+  await choose(page, QUESTIONS.liability, EN.options.yes);
+  await choose(page, QUESTIONS.casco, EN.options.no);
+  await choose(page, QUESTIONS.licensePlateType, EN.options.singlePlate);
+  await page.getByRole('button', { name: EN.submit }).click();
 
-  await expect(page.getByRole('heading', { name: 'Ihre Demo-Konfiguration' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: EN.summary })).toBeVisible();
 });
 
 test('removes downstream steps when an earlier answer changes', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/en');
 
-  await choose(page, QUESTIONS.liability, 'Ja');
-  await choose(page, QUESTIONS.casco, 'Ja');
+  await choose(page, QUESTIONS.liability, EN.options.yes);
+  await choose(page, QUESTIONS.casco, EN.options.yes);
   await expect(page.getByRole('heading', { name: QUESTIONS.cascoType })).toBeVisible();
 
-  await choose(page, QUESTIONS.casco, 'Nein');
+  await choose(page, QUESTIONS.casco, EN.options.no);
   await expect(page.getByRole('heading', { name: QUESTIONS.cascoType })).toBeHidden();
   await expect(page.getByRole('heading', { name: QUESTIONS.licensePlateType })).toBeVisible();
 });
 
 test('keeps downstream answers when the same option is clicked again', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/en');
 
-  await choose(page, QUESTIONS.liability, 'Ja');
-  await choose(page, QUESTIONS.casco, 'Ja');
-  await choose(page, QUESTIONS.cascoType, 'Vollkasko');
+  await choose(page, QUESTIONS.liability, EN.options.yes);
+  await choose(page, QUESTIONS.casco, EN.options.yes);
+  await choose(page, QUESTIONS.cascoType, EN.options.fullCasco);
   await expect(page.getByRole('heading', { name: QUESTIONS.licensePlateType })).toBeVisible();
 
   // Clicking an already-selected earlier answer decides nothing new, so the
   // questions it led to must stay.
-  await choose(page, QUESTIONS.casco, 'Ja');
+  await choose(page, QUESTIONS.casco, EN.options.yes);
   await expect(page.getByRole('heading', { name: QUESTIONS.cascoType })).toBeVisible();
   await expect(page.getByRole('heading', { name: QUESTIONS.licensePlateType })).toBeVisible();
 });
 
 test('header does not overlap the title on a narrow viewport', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
-  await page.goto('/');
+  await page.goto('/en');
 
   // The header has a fixed min-height regardless of whether the reset
   // button is showing in it, so this holds whether or not one has answered.
@@ -95,21 +99,24 @@ test('header does not overlap the title on a narrow viewport', async ({ page }) 
 
 test('has no horizontal overflow on a narrow viewport', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 });
-  await page.goto('/');
+  // The one German test in this file, on purpose. This guards against long,
+  // unbroken compound words overflowing ("Haftpflichtversicherung",
+  // "Wechselkennzeichen"), and English has nothing of that length to break on,
+  // so running it in the default locale would assert almost nothing.
+  await page.goto('/de');
 
-  // Long, unbroken German compound words (as headings and button labels)
-  // must wrap instead of overflowing.
-  await choose(page, QUESTIONS.liability, 'Ja');
-  await choose(page, QUESTIONS.casco, 'Ja');
-  await choose(page, QUESTIONS.cascoType, 'Vollkasko');
+  const de = COPY.de;
+  await choose(page, de.questions.liability, de.options.yes);
+  await choose(page, de.questions.casco, de.options.yes);
+  await choose(page, de.questions.cascoType, de.options.fullCasco);
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(overflow).toBeLessThanOrEqual(320);
 });
 
 test('keeps unanswered progress across a reload', async ({ page }) => {
-  await page.goto('/');
-  await choose(page, QUESTIONS.liability, 'Ja');
+  await page.goto('/en');
+  await choose(page, QUESTIONS.liability, EN.options.yes);
 
   await page.reload();
 
@@ -117,7 +124,7 @@ test('keeps unanswered progress across a reload', async ({ page }) => {
 });
 
 test('starts a fresh conversation after reloading a submitted one', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/en');
   await completeFlow(page);
 
   await page.reload();
@@ -126,25 +133,25 @@ test('starts a fresh conversation after reloading a submitted one', async ({ pag
   // a finished conversation that offers to submit itself again.
   await expect(page.getByRole('heading', { name: QUESTIONS.liability })).toBeVisible();
   await expect(page.getByRole('heading', { name: QUESTIONS.casco })).toBeHidden();
-  await expect(page.getByRole('button', { name: 'Absenden' })).toBeHidden();
-  await expect(page.getByRole('heading', { name: 'Ihre Demo-Konfiguration' })).toBeHidden();
+  await expect(page.getByRole('button', { name: EN.submit })).toBeHidden();
+  await expect(page.getByRole('heading', { name: EN.summary })).toBeHidden();
 });
 
 test('shows an error and recovers when submission fails then succeeds', async ({ page }) => {
   // Fail the first submission.
-  await page.route('**/api/conversation', (route) => route.fulfill({ status: 500 }));
-  await page.goto('/');
+  await page.route('**/api/conversation*', (route) => route.fulfill({ status: 500 }));
+  await page.goto('/en');
 
-  await choose(page, QUESTIONS.liability, 'Nein');
-  await choose(page, QUESTIONS.casco, 'Nein');
-  await choose(page, QUESTIONS.licensePlateType, 'Einzelkennzeichen');
-  await page.getByRole('button', { name: 'Absenden' }).click();
+  await choose(page, QUESTIONS.liability, EN.options.no);
+  await choose(page, QUESTIONS.casco, EN.options.no);
+  await choose(page, QUESTIONS.licensePlateType, EN.options.singlePlate);
+  await page.getByRole('button', { name: EN.submit }).click();
 
-  await expect(page.getByText('Ein Fehler ist aufgetreten.')).toBeVisible();
+  await expect(page.getByText(EN.error)).toBeVisible();
 
   // Make the endpoint healthy and retry.
-  await page.unroute('**/api/conversation');
-  await page.getByRole('button', { name: 'Erneut absenden' }).click();
+  await page.unroute('**/api/conversation*');
+  await page.getByRole('button', { name: EN.retry }).click();
 
-  await expect(page.getByRole('heading', { name: 'Ihre Demo-Konfiguration' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: EN.summary })).toBeVisible();
 });

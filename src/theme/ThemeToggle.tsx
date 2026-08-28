@@ -4,6 +4,7 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import IconButton from '@mui/material/IconButton';
 import { useColorScheme } from '@mui/material/styles';
+import { useTranslations } from 'next-intl';
 
 const sx = {
   // The default icon-button colour is a low-contrast "action" tone; this
@@ -18,6 +19,7 @@ const sx = {
  * then rather than rendering an icon the first paint would have to correct.
  */
 export const ThemeToggle = () => {
+  const t = useTranslations('theme');
   const { mode, setMode } = useColorScheme();
 
   if (!mode) {
@@ -29,7 +31,7 @@ export const ThemeToggle = () => {
   return (
     <IconButton
       onClick={() => setMode(isDark ? 'light' : 'dark')}
-      aria-label={isDark ? 'Zum hellen Design wechseln' : 'Zum dunklen Design wechseln'}
+      aria-label={isDark ? t('toLight') : t('toDark')}
       sx={sx}
     >
       {isDark ? <LightModeIcon /> : <DarkModeIcon />}

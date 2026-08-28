@@ -5,8 +5,8 @@ import { renderWithTheme, screen } from '@/test/render';
 
 import { ThemeToggle } from './ThemeToggle';
 
-const LIGHT_LABEL = 'Zum dunklen Design wechseln';
-const DARK_LABEL = 'Zum hellen Design wechseln';
+const LIGHT_LABEL = 'Switch to the dark theme';
+const DARK_LABEL = 'Switch to the light theme';
 
 describe('ThemeToggle', () => {
   it('renders a labelled, clickable button', () => {

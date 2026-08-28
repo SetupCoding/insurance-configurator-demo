@@ -8,27 +8,32 @@ import { ConfigurationSummary } from './ConfigurationSummary';
 const configuration: Configuration = [
   {
     name: 'liability',
-    question: 'Benötigen Sie eine Haftpflichtversicherung?',
+    question: 'Do you need liability insurance?',
     value: true,
-    label: 'Ja',
+    label: 'Yes',
   },
-  { name: 'casco', question: 'Benötigen Sie eine Kasko?', value: false, label: 'Nein' },
+  {
+    name: 'casco',
+    question: 'Do you need collision damage insurance?',
+    value: false,
+    label: 'No',
+  },
 ];
 
 describe('ConfigurationSummary', () => {
   it('lists every question with the option label that was chosen', () => {
     renderWithTheme(<ConfigurationSummary configuration={configuration} />);
 
-    expect(screen.getByText('Benötigen Sie eine Haftpflichtversicherung?')).toBeInTheDocument();
-    expect(screen.getByText('Ja')).toBeInTheDocument();
-    expect(screen.getByText('Benötigen Sie eine Kasko?')).toBeInTheDocument();
-    expect(screen.getByText('Nein')).toBeInTheDocument();
+    expect(screen.getByText('Do you need liability insurance?')).toBeInTheDocument();
+    expect(screen.getByText('Yes')).toBeInTheDocument();
+    expect(screen.getByText('Do you need collision damage insurance?')).toBeInTheDocument();
+    expect(screen.getByText('No')).toBeInTheDocument();
   });
 
   it('states that nothing was stored', () => {
     renderWithTheme(<ConfigurationSummary configuration={configuration} />);
 
-    expect(screen.getByText(/nichts gespeichert/i)).toBeInTheDocument();
+    expect(screen.getByText(/nothing was stored/i)).toBeInTheDocument();
   });
 
   it('pairs each question with its answer as a description list', () => {

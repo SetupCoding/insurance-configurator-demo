@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "title": "Versicherungs-Konfigurator",
+    "description": "Technische Demo eines Versicherungs-Konfigurators. Keine Beratung, keine Speicherung."
+  },
+  "layout": {
+    "skipToContent": "Zum Inhalt springen"
+  },
+  "chat": {
+    "title": "Versicherungs-Konfigurator",
+    "subtitle": "Technische Demo, keine Versicherungsberatung. Ihre Auswahl wird zur Prüfung an den Server geschickt, dort nicht gespeichert und nicht weiterverarbeitet.",
+    "submit": "Absenden",
+    "submitting": "Wird gesendet…"
+  },
+  "summary": {
+    "heading": "Ihre Demo-Konfiguration",
+    "note": "Gegen den Gesprächsverlauf geprüft und danach verworfen. Es wurde nichts gespeichert und nichts weiterverarbeitet."
+  },
+  "reset": {
+    "action": "Neu starten",
+    "confirmTitle": "Neu starten?",
+    "confirmBody": "Ihre bisherigen Angaben gehen dabei verloren.",
+    "cancel": "Abbrechen",
+    "confirm": "Neu starten"
+  },
+  "error": {
+    "heading": "Ein Fehler ist aufgetreten.",
+    "hint": "Bitte versuchen Sie es in ein paar Minuten erneut.",
+    "retry": "Erneut absenden",
+    "malformed_json": "Die Anfrage war fehlerhaft aufgebaut.",
+    "payload_too_large": "Die Anfrage war zu groß.",
+    "invalid_submission": "Die Angaben waren unvollständig oder fehlerhaft.",
+    "invalid_path": "Die Angaben passen nicht zum Gesprächsverlauf. Bitte starten Sie neu.",
+    "unsupported_locale": "Die angefragte Sprache wird nicht unterstützt.",
+    "unexpected_response": "Die Antwort des Servers war unerwartet aufgebaut.",
+    "transport": "Die Übermittlung ist fehlgeschlagen."
+  },
+  "theme": {
+    "toLight": "Zum hellen Design wechseln",
+    "toDark": "Zum dunklen Design wechseln"
+  },
+  "locale": {
+    "label": "Sprache",
+    "de": "Deutsch",
+    "en": "English"
+  }
+}

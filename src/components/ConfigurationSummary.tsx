@@ -1,4 +1,7 @@
+'use client';
+
 import { Box, Typography } from '@mui/material';
+import { useTranslations } from 'next-intl';
 import { Fragment } from 'react';
 
 import type { Configuration } from '@/lib/schema/conversation';
@@ -9,21 +12,22 @@ type Props = {
 
 /**
  * Shows the path as the server read it back, not as the client remembers it.
+ * The question and answer wording here comes from the response, which is why it
+ * is not translated locally: it is evidence that the server walked the flow.
  *
  * A description list rather than two columns of text, so the pairing between a
  * question and its answer is available to a screen reader and not only to the
  * eye; the grid is layout over that structure, not a replacement for it.
  */
 export const ConfigurationSummary = ({ configuration }: Props) => {
+  const t = useTranslations('summary');
+
   return (
     <Box>
       <Typography variant="h3" gutterBottom>
-        Ihre Demo-Konfiguration
+        {t('heading')}
       </Typography>
-      <Typography sx={{ mb: 3, color: 'text.secondary' }}>
-        Gegen den Gesprächsverlauf geprüft und danach verworfen. Es wurde nichts gespeichert und
-        nichts weiterverarbeitet.
-      </Typography>
+      <Typography sx={{ mb: 3, color: 'text.secondary' }}>{t('note')}</Typography>
       <Box
         component="dl"
         sx={{

@@ -39,3 +39,11 @@ if (!window.HTMLDialogElement.prototype.showModal) {
     this.removeAttribute('open');
   };
 }
+
+// The App Router hooks need a router context that a component test does not
+// have. LocaleSwitcher reads the current path only to build the href for the
+// other locale, so a fixed path is enough to render it.
+vi.mock('next/navigation', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('next/navigation')>()),
+  usePathname: () => '/en',
+}));

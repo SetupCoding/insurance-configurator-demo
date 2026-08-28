@@ -3,6 +3,7 @@ import { delay, http, HttpResponse } from 'msw';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
 import { getFlow } from '@/lib/data/flow';
+import { localizeFlow } from '@/lib/domain/localizeFlow';
 import { server } from '@/lib/mocks/server';
 import { fireEvent, renderWithTheme, screen, waitFor, within } from '@/test/render';
 
@@ -12,16 +13,18 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-const flow = getFlow();
+// Resolved on the server in the real app, so the component only ever sees
+// one locale of wording.
+const flow = localizeFlow(getFlow(), 'en');
 
 const ACCEPTED = {
   status: 'accepted',
   configuration: [
     {
       name: 'liability',
-      question: 'Benötigen Sie eine Haftpflichtversicherung?',
+      question: 'Do you need liability insurance?',
       value: true,
-      label: 'Ja',
+      label: 'Yes',
     },
   ],
 };
@@ -47,39 +50,39 @@ async function choose(stepText: string, optionName: string) {
 
 /** Walks the flow to completion along a fixed path. Does not submit. */
 async function completeFlow() {
-  await choose('Benötigen Sie eine Haftpflichtversicherung?', 'Ja');
-  await choose('Benötigen Sie eine Kasko?', 'Ja');
-  await choose('Welche Art von Kasko benötigen Sie?', 'Vollkasko');
-  await choose('Welche Kennzeichenart benötigen Sie?', 'Einzelkennzeichen');
+  await choose('Do you need liability insurance?', 'Yes');
+  await choose('Do you need collision damage insurance?', 'Yes');
+  await choose('Which kind of collision damage insurance do you need?', 'Full coverage');
+  await choose('Which kind of licence plate do you need?', 'Single licence plate');
 }
 
 /** Walks the flow to completion and submits it. */
 async function submitFlow() {
   await completeFlow();
-  await userEvent.click(screen.getByRole('button', { name: 'Absenden' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 }
 
 describe('InsuranceChat', () => {
   it('does not submit automatically once every question is answered', async () => {
-    renderWithTheme(<InsuranceChat flow={flow} />);
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
 
     await completeFlow();
 
-    expect(screen.getByRole('button', { name: 'Absenden' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
     expect(
-      screen.queryByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+      screen.queryByRole('heading', { name: 'Your demo configuration' }),
     ).not.toBeInTheDocument();
   });
 
   it('submits the answers and shows the configuration the server validated', async () => {
-    renderWithTheme(<InsuranceChat flow={flow} />);
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
 
     await submitFlow();
 
     expect(
-      await screen.findByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+      await screen.findByRole('heading', { name: 'Your demo configuration' }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Absenden' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Submit' })).not.toBeInTheDocument();
   });
 
   it('renders the configuration from the response, not from local state', async () => {
@@ -90,22 +93,22 @@ describe('InsuranceChat', () => {
           configuration: [
             {
               name: 'liability',
-              question: 'Frage vom Server',
+              question: 'Question from the server',
               value: true,
-              label: 'Antwort vom Server',
+              label: 'Answer from the server',
             },
           ],
         }),
       ),
     );
 
-    renderWithTheme(<InsuranceChat flow={flow} />);
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
     await submitFlow();
 
     // The server is the authority on what was accepted, so the summary has
     // to show its wording even where it differs from the local answers.
-    expect(await screen.findByText('Frage vom Server')).toBeInTheDocument();
-    expect(screen.getByText('Antwort vom Server')).toBeInTheDocument();
+    expect(await screen.findByText('Question from the server')).toBeInTheDocument();
+    expect(screen.getByText('Answer from the server')).toBeInTheDocument();
   });
 
   it('marks the submit button busy and locks earlier answers while in flight', async () => {
@@ -117,26 +120,26 @@ describe('InsuranceChat', () => {
       }),
     );
 
-    renderWithTheme(<InsuranceChat flow={flow} />);
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
     await completeFlow();
-    await userEvent.click(screen.getByRole('button', { name: 'Absenden' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
-    const pendingButton = screen.getByRole('button', { name: 'Wird gesendet…' });
+    const pendingButton = screen.getByRole('button', { name: 'Sending…' });
     expect(pendingButton).toHaveAttribute('aria-busy', 'true');
     expect(pendingButton).toHaveAttribute('aria-disabled', 'true');
 
     const firstGroup = screen.getByRole('group', {
-      name: 'Benötigen Sie eine Haftpflichtversicherung?',
+      name: 'Do you need liability insurance?',
     });
-    expect(within(firstGroup).getByRole('button', { name: 'Ja' })).toBeDisabled();
+    expect(within(firstGroup).getByRole('button', { name: 'Yes' })).toBeDisabled();
 
     request.release();
     expect(
-      await screen.findByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+      await screen.findByRole('heading', { name: 'Your demo configuration' }),
     ).toBeInTheDocument();
   });
 
-  it('sends one request even when "Absenden" is clicked twice in a row', async () => {
+  it('sends one request even when submit is clicked twice in a row', async () => {
     let requests = 0;
     server.use(
       http.post('*/api/conversation', async () => {
@@ -146,17 +149,17 @@ describe('InsuranceChat', () => {
       }),
     );
 
-    renderWithTheme(<InsuranceChat flow={flow} />);
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
     await completeFlow();
 
     // aria-disabled does not stop a click from being delivered, which is the
     // point: the guard has to hold without the native attribute.
-    const button = screen.getByRole('button', { name: 'Absenden' });
+    const button = screen.getByRole('button', { name: 'Submit' });
     fireEvent.click(button);
     fireEvent.click(button);
 
     expect(
-      await screen.findByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+      await screen.findByRole('heading', { name: 'Your demo configuration' }),
     ).toBeInTheDocument();
     expect(requests).toBe(1);
   });
@@ -174,20 +177,20 @@ describe('InsuranceChat', () => {
       }),
     );
 
-    renderWithTheme(<InsuranceChat flow={flow} />);
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
     await completeFlow();
-    await userEvent.click(screen.getByRole('button', { name: 'Absenden' }));
-    expect(screen.getByRole('button', { name: 'Wird gesendet…' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    expect(screen.getByRole('button', { name: 'Sending…' })).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Neu starten' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Start over' }));
     const dialog = screen.getByRole('dialog');
-    await userEvent.click(within(dialog).getByRole('button', { name: 'Neu starten' }));
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Start over' }));
 
     await waitFor(() => expect(aborts).toBe(1));
 
     // Back at the first question.
     expect(
-      screen.queryByRole('heading', { name: 'Benötigen Sie eine Kasko?' }),
+      screen.queryByRole('heading', { name: 'Do you need collision damage insurance?' }),
     ).not.toBeInTheDocument();
 
     // Now let the response the server had already prepared go out. The attempt
@@ -196,70 +199,72 @@ describe('InsuranceChat', () => {
     pending.release();
     await delay(100);
     expect(
-      screen.queryByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+      screen.queryByRole('heading', { name: 'Your demo configuration' }),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('keeps earlier answers editable once finished but before submitting', async () => {
-    renderWithTheme(<InsuranceChat flow={flow} />);
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
 
     await completeFlow();
 
     const firstGroup = screen.getByRole('group', {
-      name: 'Benötigen Sie eine Haftpflichtversicherung?',
+      name: 'Do you need liability insurance?',
     });
-    expect(within(firstGroup).getByRole('button', { name: 'Ja' })).not.toBeDisabled();
+    expect(within(firstGroup).getByRole('button', { name: 'Yes' })).not.toBeDisabled();
   });
 
   it('keeps downstream questions when the same option is clicked again', async () => {
-    renderWithTheme(<InsuranceChat flow={flow} />);
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
 
     await completeFlow();
-    await choose('Benötigen Sie eine Kasko?', 'Ja');
+    await choose('Do you need collision damage insurance?', 'Yes');
 
     expect(
-      screen.getByRole('heading', { name: 'Welche Art von Kasko benötigen Sie?' }),
+      screen.getByRole('heading', {
+        name: 'Which kind of collision damage insurance do you need?',
+      }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: 'Welche Kennzeichenart benötigen Sie?' }),
+      screen.getByRole('heading', { name: 'Which kind of licence plate do you need?' }),
     ).toBeInTheDocument();
   });
 
   it('hides the reset button before any answer is given', () => {
-    renderWithTheme(<InsuranceChat flow={flow} />);
-    expect(screen.queryByRole('button', { name: 'Neu starten' })).not.toBeInTheDocument();
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
+    expect(screen.queryByRole('button', { name: 'Start over' })).not.toBeInTheDocument();
   });
 
-  it('resets to the first question once "Neu starten" is confirmed', async () => {
-    renderWithTheme(<InsuranceChat flow={flow} />);
+  it('resets to the first question once the reset is confirmed', async () => {
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
 
-    await choose('Benötigen Sie eine Haftpflichtversicherung?', 'Ja');
-    await userEvent.click(screen.getByRole('button', { name: 'Neu starten' }));
+    await choose('Do you need liability insurance?', 'Yes');
+    await userEvent.click(screen.getByRole('button', { name: 'Start over' }));
     const dialog = screen.getByRole('dialog');
-    await userEvent.click(within(dialog).getByRole('button', { name: 'Neu starten' }));
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Start over' }));
 
     expect(
-      screen.getByRole('heading', { name: 'Benötigen Sie eine Haftpflichtversicherung?' }),
+      screen.getByRole('heading', { name: 'Do you need liability insurance?' }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('heading', { name: 'Benötigen Sie eine Kasko?' }),
+      screen.queryByRole('heading', { name: 'Do you need collision damage insurance?' }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Neu starten' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Start over' })).not.toBeInTheDocument();
   });
 
   it('moves the reset button from the header to next to the result', async () => {
-    renderWithTheme(<InsuranceChat flow={flow} />);
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
 
     await completeFlow();
-    expect(screen.getByRole('button', { name: 'Neu starten' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Start over' })).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Absenden' }));
-    await screen.findByRole('heading', { name: 'Ihre Demo-Konfiguration' });
+    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    await screen.findByRole('heading', { name: 'Your demo configuration' });
 
     // Exactly one reset button exists post-submission, right after the
     // result, not still sitting in the header too.
-    expect(screen.getAllByRole('button', { name: 'Neu starten' })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: 'Start over' })).toHaveLength(1);
   });
 
   it('shows an error with a working retry when submission fails', async () => {
@@ -269,18 +274,18 @@ describe('InsuranceChat', () => {
       ),
     );
 
-    renderWithTheme(<InsuranceChat flow={flow} />);
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
     await submitFlow();
 
     const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent('Ein Fehler ist aufgetreten.');
+    expect(alert).toHaveTextContent('Something went wrong.');
 
     // Recover: the retry should succeed once the endpoint is healthy again.
     server.use(http.post('*/api/conversation', () => HttpResponse.json(ACCEPTED)));
-    await userEvent.click(screen.getByRole('button', { name: 'Erneut absenden' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Submit again' }));
 
     expect(
-      await screen.findByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+      await screen.findByRole('heading', { name: 'Your demo configuration' }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
@@ -294,7 +299,7 @@ describe('InsuranceChat', () => {
       }),
     );
 
-    renderWithTheme(<InsuranceChat flow={flow} />);
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
     await submitFlow();
 
     await screen.findByRole('alert');
@@ -308,12 +313,81 @@ describe('InsuranceChat', () => {
       http.post('*/api/conversation', () => HttpResponse.json({ status: 'ok' }, { status: 200 })),
     );
 
-    renderWithTheme(<InsuranceChat flow={flow} />);
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
     await submitFlow();
 
     expect(await screen.findByRole('alert')).toBeInTheDocument();
     expect(
-      screen.queryByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+      screen.queryByRole('heading', { name: 'Your demo configuration' }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('InsuranceChat in another locale', () => {
+  const germanFlow = localizeFlow(getFlow(), 'de');
+
+  it('renders its own copy and the flow in the same language', () => {
+    renderWithTheme(<InsuranceChat flow={germanFlow} locale="de" />, { locale: 'de' });
+
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Versicherungs-Konfigurator' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Benötigen Sie eine Haftpflichtversicherung?' }),
+    ).toBeInTheDocument();
+  });
+
+  it('submits in the locale it was rendered in, and shows the reply in it', async () => {
+    // The wording of the result comes from the server, so a locale the client
+    // fails to send would show English text inside a German page.
+    let requested: string | null = null;
+    server.use(
+      http.post('*/api/conversation', ({ request }) => {
+        requested = new URL(request.url).searchParams.get('locale');
+        return HttpResponse.json({
+          status: 'accepted',
+          configuration: [
+            {
+              name: 'liability',
+              question: 'Benötigen Sie eine Haftpflichtversicherung?',
+              value: true,
+              label: 'Ja',
+            },
+          ],
+        });
+      }),
+    );
+
+    renderWithTheme(<InsuranceChat flow={germanFlow} locale="de" />, { locale: 'de' });
+
+    await choose('Benötigen Sie eine Haftpflichtversicherung?', 'Ja');
+    await choose('Benötigen Sie eine Kasko?', 'Ja');
+    await choose('Welche Art von Kasko benötigen Sie?', 'Vollkasko');
+    await choose('Welche Kennzeichenart benötigen Sie?', 'Einzelkennzeichen');
+    await userEvent.click(screen.getByRole('button', { name: 'Absenden' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Ihre Demo-Konfiguration' }),
+    ).toBeInTheDocument();
+    expect(requested).toBe('de');
+  });
+
+  it('reports a failure in its own language', async () => {
+    server.use(
+      http.post('*/api/conversation', () =>
+        HttpResponse.json({ error: 'invalid_path' }, { status: 422 }),
+      ),
+    );
+
+    renderWithTheme(<InsuranceChat flow={germanFlow} locale="de" />, { locale: 'de' });
+
+    await choose('Benötigen Sie eine Haftpflichtversicherung?', 'Nein');
+    await choose('Benötigen Sie eine Kasko?', 'Nein');
+    await choose('Welche Kennzeichenart benötigen Sie?', 'Einzelkennzeichen');
+    await userEvent.click(screen.getByRole('button', { name: 'Absenden' }));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Ein Fehler ist aufgetreten.');
+    expect(alert).toHaveTextContent('Die Angaben passen nicht zum Gesprächsverlauf.');
   });
 });

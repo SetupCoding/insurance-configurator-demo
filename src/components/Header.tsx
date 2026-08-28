@@ -3,6 +3,7 @@
 import { Box } from '@mui/material';
 import type { ReactNode } from 'react';
 
+import { LocaleSwitcher } from '@/features/i18n/LocaleSwitcher';
 import { ThemeToggle } from '@/theme/ThemeToggle';
 
 type Props = {
@@ -25,12 +26,18 @@ export const Header = ({ start }: Props) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        gap: 1,
         minHeight: 48,
         px: { xs: 1, sm: 2 },
       }}
     >
       <Box>{start}</Box>
-      <ThemeToggle />
+      {/* Both of these change how the page is presented rather than what it
+          says, so they sit together at the end. */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <LocaleSwitcher />
+        <ThemeToggle />
+      </Box>
     </Box>
   );
 };

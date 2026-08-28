@@ -24,23 +24,23 @@ const longPath: Submission = [
 ];
 
 function detailOf(answers: Submission): string {
-  const result = validateSubmission(flow, answers);
+  const result = validateSubmission(flow, answers, 'de');
   return result.ok ? '' : result.detail;
 }
 
 describe('validateSubmission', () => {
   it('accepts the shortest valid path', () => {
-    const result = validateSubmission(flow, shortPath);
+    const result = validateSubmission(flow, shortPath, 'de');
     expect(result.ok).toBe(true);
   });
 
   it('accepts the longest valid path', () => {
-    const result = validateSubmission(flow, longPath);
+    const result = validateSubmission(flow, longPath, 'de');
     expect(result.ok).toBe(true);
   });
 
   it('resolves each answer back to the question and option wording', () => {
-    const result = validateSubmission(flow, shortPath);
+    const result = validateSubmission(flow, shortPath, 'de');
     expect(result.ok && result.configuration).toEqual([
       {
         name: 'liability',
@@ -56,6 +56,55 @@ describe('validateSubmission', () => {
         label: 'Einzelkennzeichen',
       },
     ]);
+  });
+
+  it('resolves the wording in the locale it was asked for', () => {
+    const result = validateSubmission(flow, shortPath, 'en');
+    expect(result.ok && result.configuration).toEqual([
+      {
+        name: 'liability',
+        question: 'Do you need liability insurance?',
+        value: false,
+        label: 'No',
+      },
+      {
+        name: 'casco',
+        question: 'Do you need collision damage insurance?',
+        value: false,
+        label: 'No',
+      },
+      {
+        name: 'licensePlateType',
+        question: 'Which kind of licence plate do you need?',
+        value: 'ekz',
+        label: 'Single licence plate',
+      },
+    ]);
+  });
+
+  it('identifies the answered steps by the same names in either locale', () => {
+    // The names are the language-neutral part of the contract, so a client that
+    // switches language mid-session is still talking about the same steps.
+    const german = validateSubmission(flow, shortPath, 'de');
+    const english = validateSubmission(flow, shortPath, 'en');
+
+    const namesOf = (result: typeof german) =>
+      result.ok ? result.configuration.map((entry) => entry.name) : [];
+    expect(namesOf(english)).toEqual(namesOf(german));
+  });
+
+  it('rejects a tampered path in every locale, and says why in English', () => {
+    // The walk matches on name and value and never on text, so the locale
+    // cannot change the verdict. `detail` is a diagnostic, not user-facing
+    // copy, so it does not follow the locale either.
+    const answers: Submission = [{ name: 'premium', value: true }, ...shortPath.slice(1)];
+    const expected = 'Answer 0 must be "liability", got "premium".';
+
+    for (const locale of ['de', 'en'] as const) {
+      const result = validateSubmission(flow, answers, locale);
+      expect(result.ok).toBe(false);
+      expect(!result.ok && result.detail).toBe(expected);
+    }
   });
 
   it('rejects an answer to a question the flow never asked', () => {

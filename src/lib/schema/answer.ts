@@ -1,6 +1,5 @@
-import { z } from 'zod';
-
 import { optionValueSchema } from './flow';
+import { z } from './zod';
 
 /**
  * A submitted conversation as it goes over the wire.

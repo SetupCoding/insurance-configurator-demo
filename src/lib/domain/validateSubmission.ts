@@ -1,6 +1,7 @@
+import type { Locale } from '@/lib/i18n/locales';
 import type { Submission } from '@/lib/schema/answer';
 import type { Configuration, ConfigurationEntry } from '@/lib/schema/conversation';
-import type { Flow, Step, ValueOption } from '@/lib/schema/flow';
+import type { FlowDefinition, StepDefinition, ValueOptionDefinition } from '@/lib/schema/flow';
 
 type SubmissionValidation =
   { ok: true; configuration: Configuration } | { ok: false; detail: string };
@@ -15,14 +16,24 @@ type SubmissionValidation =
  * repeats, wrong order, unoffered values, short paths and trailing extras
  * alike.
  *
- * Returns the answers resolved back to the question and option wording, so a
- * caller can report what was submitted without trusting the client's copy.
+ * Returns the answers resolved back to the question and option wording in
+ * `locale`, so a caller can report what was submitted without trusting the
+ * client's copy. The walk itself is language-neutral: it matches on `name` and
+ * `value`, never on text, so which locale is asked for cannot change whether a
+ * submission is accepted.
+ *
+ * `detail` on a rejection stays English regardless of `locale`. It is a
+ * diagnostic for whoever is holding the logs, never shown to the user.
  */
-export function validateSubmission(flow: Flow, answers: Submission): SubmissionValidation {
-  const byId = new Map<number, Step>(flow.map((step) => [step.id, step]));
+export function validateSubmission(
+  flow: FlowDefinition,
+  answers: Submission,
+  locale: Locale,
+): SubmissionValidation {
+  const byId = new Map<number, StepDefinition>(flow.map((step) => [step.id, step]));
   const configuration: ConfigurationEntry[] = [];
 
-  let step: Step | undefined = flow[0];
+  let step: StepDefinition | undefined = flow[0];
 
   for (const [index, answer] of answers.entries()) {
     if (!step) {
@@ -37,7 +48,7 @@ export function validateSubmission(flow: Flow, answers: Submission): SubmissionV
 
     // Annotated because the assignment to `step` below depends on `option`,
     // which would otherwise make inferring `option` circular.
-    const option: ValueOption | undefined = step.valueOptions.find(
+    const option: ValueOptionDefinition | undefined = step.valueOptions.find(
       (candidate) => candidate.value === answer.value,
     );
     if (!option) {
@@ -49,12 +60,12 @@ export function validateSubmission(flow: Flow, answers: Submission): SubmissionV
 
     configuration.push({
       name: step.name,
-      question: step.text,
+      question: step.text[locale],
       value: answer.value,
-      label: option.text,
+      label: option.text[locale],
     });
 
-    // `nextId` always resolves: flowSchema rejects a dangling reference, so
+    // `nextId` always resolves: the flow schema rejects a dangling reference, so
     // this can only be undefined once the path has ended.
     step = option.nextId === false ? undefined : byId.get(option.nextId);
   }

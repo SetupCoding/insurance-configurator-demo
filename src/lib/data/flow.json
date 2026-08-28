@@ -2,56 +2,87 @@
   {
     "id": 100,
     "name": "liability",
-    "text": "Benötigen Sie eine Haftpflichtversicherung?",
+    "text": {
+      "de": "Benötigen Sie eine Haftpflichtversicherung?",
+      "en": "Do you need liability insurance?"
+    },
     "uiType": "button",
     "valueType": "boolean",
     "valueOptions": [
-      { "nextId": 200, "value": true, "text": "Ja" },
-      { "nextId": 200, "value": false, "text": "Nein" }
+      { "nextId": 200, "value": true, "text": { "de": "Ja", "en": "Yes" } },
+      { "nextId": 200, "value": false, "text": { "de": "Nein", "en": "No" } }
     ]
   },
   {
     "id": 200,
     "name": "casco",
-    "text": "Benötigen Sie eine Kasko?",
+    "text": {
+      "de": "Benötigen Sie eine Kasko?",
+      "en": "Do you need collision damage insurance?"
+    },
     "uiType": "button",
     "valueType": "boolean",
     "valueOptions": [
-      { "nextId": 201, "value": true, "text": "Ja" },
-      { "nextId": 300, "value": false, "text": "Nein" }
+      { "nextId": 201, "value": true, "text": { "de": "Ja", "en": "Yes" } },
+      { "nextId": 300, "value": false, "text": { "de": "Nein", "en": "No" } }
     ]
   },
   {
     "id": 201,
     "name": "cascoType",
-    "text": "Welche Art von Kasko benötigen Sie?",
+    "text": {
+      "de": "Welche Art von Kasko benötigen Sie?",
+      "en": "Which kind of collision damage insurance do you need?"
+    },
     "uiType": "button",
     "valueType": "string",
     "valueOptions": [
-      { "nextId": 300, "value": "full", "text": "Vollkasko" },
-      { "nextId": 300, "value": "part", "text": "Teilkasko" }
+      {
+        "nextId": 300,
+        "value": "full",
+        "text": { "de": "Vollkasko", "en": "Full coverage" }
+      },
+      {
+        "nextId": 300,
+        "value": "part",
+        "text": { "de": "Teilkasko", "en": "Partial coverage" }
+      }
     ]
   },
   {
     "id": 300,
     "name": "licensePlateType",
-    "text": "Welche Kennzeichenart benötigen Sie?",
+    "text": {
+      "de": "Welche Kennzeichenart benötigen Sie?",
+      "en": "Which kind of licence plate do you need?"
+    },
     "uiType": "button",
     "valueType": "string",
     "valueOptions": [
-      { "nextId": false, "value": "ekz", "text": "Einzelkennzeichen" },
-      { "nextId": 301, "value": "wkz", "text": "Wechselkennzeichen" }
+      {
+        "nextId": false,
+        "value": "ekz",
+        "text": { "de": "Einzelkennzeichen", "en": "Single licence plate" }
+      },
+      {
+        "nextId": 301,
+        "value": "wkz",
+        "text": { "de": "Wechselkennzeichen", "en": "Interchangeable licence plate" }
+      }
     ]
   },
   {
     "id": 301,
     "name": "vehicles",
-    "text": "Wie viele Fahrzeuge wollen Sie versichern?",
+    "text": {
+      "de": "Wie viele Fahrzeuge wollen Sie versichern?",
+      "en": "How many vehicles do you want to insure?"
+    },
     "uiType": "button",
     "valueType": "number",
     "valueOptions": [
-      { "nextId": false, "value": 2, "text": "Zwei Fahrzeuge" },
-      { "nextId": false, "value": 3, "text": "Drei Fahrzeuge" }
+      { "nextId": false, "value": 2, "text": { "de": "Zwei Fahrzeuge", "en": "Two vehicles" } },
+      { "nextId": false, "value": 3, "text": { "de": "Drei Fahrzeuge", "en": "Three vehicles" } }
     ]
   }
 ]

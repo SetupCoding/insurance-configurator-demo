@@ -2,8 +2,10 @@
 
 import SendIcon from '@mui/icons-material/Send';
 import { Box, Button, CircularProgress, Container, Typography } from '@mui/material';
+import { useTranslations } from 'next-intl';
 
 import { ConfigurationSummary, Conversation, ErrorState, Header } from '@/components';
+import type { Locale } from '@/lib/i18n/locales';
 import type { Flow } from '@/lib/schema/flow';
 import { ICON_LABEL_ALIGNMENT } from '@/theme/buttonStyles';
 
@@ -12,15 +14,22 @@ import { useInsuranceFlow } from './useInsuranceFlow';
 import { useSubmitAnswers } from './useSubmitAnswers';
 
 type Props = {
+  /** Already resolved to `locale` by the server; see `localizeFlow`. */
   flow: Flow;
+  /**
+   * Needed for the submission, not for the rendering. The server resolves the
+   * wording of its reply in this locale, so it belongs to the request.
+   */
+  locale: Locale;
 };
 
 /**
  * The only `use client` boundary in the page. Everything interactive hangs off
  * this one component, so the rest of the tree stays a Server Component.
  */
-export const InsuranceChat = ({ flow }: Props) => {
-  const submission = useSubmitAnswers();
+export const InsuranceChat = ({ flow, locale }: Props) => {
+  const t = useTranslations('chat');
+  const submission = useSubmitAnswers(locale);
   // Once the answers are accepted the conversation is over, so the stored copy
   // goes away while the result stays on screen until reset or reload.
   const { steps, isFinished, hasAnswers, answers, selectOption, reset } = useInsuranceFlow(flow, {
@@ -50,18 +59,17 @@ export const InsuranceChat = ({ flow }: Props) => {
         sx={{ py: { xs: 4, md: 6 }, textAlign: 'center' }}
       >
         <Typography variant="h2" gutterBottom>
-          Versicherungs-Konfigurator
+          {t('title')}
         </Typography>
         {/* What this is has to be legible to someone who only ever opens the
             deployed page, not just to someone who reads the README. */}
         <Typography sx={{ color: 'text.secondary', maxWidth: '52ch', mx: 'auto' }}>
-          Technische Demo, keine Versicherungsberatung. Ihre Auswahl wird zur Prüfung an den Server
-          geschickt, dort nicht gespeichert und nicht weiterverarbeitet.
+          {t('subtitle')}
         </Typography>
 
         {/* Once every question is answered, submission still needs an explicit
-            "Absenden" click, so earlier answers stay editable until then; only
-            an in-flight request or a completed submission locks them. */}
+            click, so earlier answers stay editable until then; only an
+            in-flight request or a completed submission locks them. */}
         <Conversation
           steps={steps}
           disabled={submission.isPending || submission.isSuccess}
@@ -89,7 +97,7 @@ export const InsuranceChat = ({ flow }: Props) => {
             aria-disabled={submission.isPending}
             sx={{ mt: 3, ...ICON_LABEL_ALIGNMENT }}
           >
-            {submission.isPending ? 'Wird gesendet…' : 'Absenden'}
+            {submission.isPending ? t('submitting') : t('submit')}
           </Button>
         )}
 
@@ -104,10 +112,7 @@ export const InsuranceChat = ({ flow }: Props) => {
 
         {submission.isError && (
           <Box sx={{ mt: 4 }}>
-            <ErrorState
-              message={submission.error?.message}
-              onRetry={() => submission.submit(answers)}
-            />
+            <ErrorState failure={submission.failure} onRetry={() => submission.submit(answers)} />
           </Box>
         )}
       </Container>

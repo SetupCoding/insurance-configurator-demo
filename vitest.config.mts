@@ -1,7 +1,7 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
-/** Modules that encode a domain rule, and are held to a stricter gate. */
+/** Modules encoding a domain rule or a security boundary, held to a stricter gate. */
 const DOMAIN_THRESHOLDS = { statements: 100, branches: 95, functions: 100, lines: 100 };
 
 export default defineConfig({
@@ -25,12 +25,17 @@ export default defineConfig({
         // and the e2e suite is what proves it renders.
         'src/app/**/layout.tsx',
         'src/lib/mocks/**',
+        // next-intl's per-request config. It only runs inside a Server Component
+        // render, and the decision it makes (which catalogue a locale gets) is
+        // what the e2e suite asserts by loading /en and reading English back.
+        'src/i18n/**',
       ],
       // Measuring without a floor lets coverage decay unnoticed. The global
       // numbers sit just under what the suite currently reaches, so ordinary
       // work has room while a real drop fails the build. The flow validator,
-      // the submission validator and the reducer are where a silent regression
-      // would actually be dangerous, so they are held to full cover.
+      // the submission validator, the reducer, the locale resolver and the CSP
+      // builder are where a silent regression would actually be dangerous, so
+      // they are held to full cover.
       thresholds: {
         statements: 95,
         branches: 90,
@@ -39,6 +44,8 @@ export default defineConfig({
         '**/src/lib/schema/flow.ts': DOMAIN_THRESHOLDS,
         '**/src/lib/domain/validateSubmission.ts': DOMAIN_THRESHOLDS,
         '**/src/features/flow/reducer.ts': DOMAIN_THRESHOLDS,
+        '**/src/lib/domain/localizeFlow.ts': DOMAIN_THRESHOLDS,
+        '**/src/lib/security/csp.ts': DOMAIN_THRESHOLDS,
       },
     },
   },

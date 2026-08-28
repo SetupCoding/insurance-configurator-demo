@@ -42,7 +42,9 @@ USER nextjs
 EXPOSE 3000
 
 # Readiness rather than liveness: the page renders the flow, so a 200 here means
-# the flow parsed and the server can serve it.
+# the flow parsed and the server can serve it. `/` is a redirect to the
+# negotiated locale, which fetch follows by default, so this covers the proxy as
+# well as the render.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:3000/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
 

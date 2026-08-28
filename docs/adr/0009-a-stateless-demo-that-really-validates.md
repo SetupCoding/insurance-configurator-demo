@@ -36,10 +36,12 @@ than a placeholder.
 
 ## Consequences
 
-- The operation is idempotent because it has no effects, which is what makes an
-  idempotency key, request deduplication and a distributed rate limiter
-  genuinely unnecessary here rather than merely missing. If persistence ever
-  arrives, all three become required in the same commit.
+- The operation has no effects, so it is idempotent, and that is what makes an
+  idempotency key and request deduplication genuinely unnecessary here rather
+  than merely missing: there is no duplicate effect to prevent. If persistence
+  ever arrives, both become required in the same commit.
+- A rate limiter is a separate question with a different answer, and there is
+  not one. See the correction below.
 - The pending state is now driven by real latency. Locally it is a flash; on a
   deployed instance it is a real round trip.
 - A reviewer can distinguish "validated" from "accepted anything": submitting a
@@ -50,3 +52,41 @@ than a placeholder.
 - The claim in the UI is now falsifiable. If persistence is ever added and the
   subtitle is not changed, the app is lying again; the subtitle is deliberately
   specific enough for that to be caught in review.
+
+## Correction: the rate limiter
+
+An earlier version of the first consequence above put a rate limiter in the same
+sentence as the idempotency key and the request deduplication, and called all
+three "genuinely unnecessary rather than merely missing". Two of those three
+were right. The rate limiter was not, and a review that pushed on exactly this
+sentence was correct to.
+
+Statelessness defends against duplicate **effects**. A rate limiter defends
+against **resource consumption**, and the two are unrelated. `POST
+/api/conversation` reads a body of up to 16 KB, parses it, and walks the flow
+graph on every request. Serving that as fast as somebody cares to ask for it is
+a denial-of-service surface whether or not a single byte is ever stored. What
+would make a limiter necessary is being reachable, not being persistent, so
+tying it to persistence was the error.
+
+The honest statement is therefore that a rate limiter is **missing**, not
+unnecessary. It is still not implemented, and the reasons belong here as reasons
+rather than dressed up as a decision:
+
+- The deployed instance is not naked, but not because of anything in this
+  repository. Vercel terminates requests in front of the app and applies
+  platform-level DDoS mitigation. That is a mitigation this project does not
+  own, and it does nothing for the Docker image, which anyone can run anywhere.
+- An in-process limiter would be per-instance. On serverless the effective limit
+  becomes instances times limit, with counters that vanish whenever an instance
+  is recycled, so it would advertise a bound it does not actually hold.
+- A limiter that does hold needs shared state, which means Redis or equivalent,
+  which means a service, credentials and environment variables. The README
+  claims this repository imports with no build configuration and no environment
+  variables, and that claim is worth more to a reader than an approximate
+  limiter is.
+
+What changes the answer: authentication, persistence, per-request work worth
+paying for, or any endpoint whose cost is not bounded by a 16 KB body and a
+five-step graph. At that point the limiter arrives together with the shared
+store it needs, and this ADR is superseded rather than amended again.

@@ -1,6 +1,5 @@
-import { z } from 'zod';
-
 import { optionValueSchema } from '@/lib/schema/flow';
+import { z } from '@/lib/schema/zod';
 
 import type { Selection } from './types';
 

@@ -1,4 +1,5 @@
 import type { Answer } from '@/features/flow/types';
+import type { Locale } from '@/lib/i18n/locales';
 import {
   acceptedResponseSchema,
   type Configuration,
@@ -7,15 +8,22 @@ import {
 } from '@/lib/schema/conversation';
 
 /**
- * German wording for the API's language-neutral failure codes. The server stays
- * neutral, so adding a locale never means changing it.
+ * Everything that can go wrong, as a code rather than a sentence.
+ *
+ * The server's own codes plus the two failures it cannot report itself: a reply
+ * that is not in the contract at all, and never getting a reply. Translating
+ * these is the UI's job, which is what keeps the wording out of this layer and
+ * makes a new locale a message file rather than a code change.
  */
-const MESSAGES: Record<ErrorCode, string> = {
-  malformed_json: 'Die Anfrage war fehlerhaft aufgebaut.',
-  payload_too_large: 'Die Anfrage war zu groß.',
-  invalid_submission: 'Die Angaben waren unvollständig oder fehlerhaft.',
-  invalid_path: 'Die Angaben passen nicht zum Gesprächsverlauf. Bitte starten Sie neu.',
-};
+export type SubmissionFailure = ErrorCode | 'unexpected_response' | 'transport';
+
+/** Carries the code. `message` exists for logs and is never shown to a user. */
+export class SubmissionError extends Error {
+  constructor(readonly code: SubmissionFailure) {
+    super(`Submission failed: ${code}`);
+    this.name = 'SubmissionError';
+  }
+}
 
 /**
  * Resolves a path against the current origin. Browsers accept relative URLs,
@@ -36,11 +44,14 @@ async function readJson(response: Response): Promise<unknown> {
   }
 }
 
-async function messageFor(response: Response): Promise<string> {
+/**
+ * The code the server reported, or `unexpected_response` when the error body is
+ * not in the contract's shape either. A failed request that cannot say why is
+ * still a server that is not holding up its end.
+ */
+async function failureFor(response: Response): Promise<SubmissionFailure> {
   const body = errorResponseSchema.safeParse(await readJson(response));
-  return body.success
-    ? MESSAGES[body.data.error]
-    : `Die Übermittlung ist fehlgeschlagen (Status ${response.status}).`;
+  return body.success ? body.data.error : 'unexpected_response';
 }
 
 /**
@@ -48,26 +59,41 @@ async function messageFor(response: Response): Promise<string> {
  * so a wrong shape fails here rather than surfacing as an empty success in a
  * component.
  *
- * Rejects on a non-2xx response, and with an AbortError when `signal` fires.
+ * `locale` goes on the query string because the reply carries display wording,
+ * so the server has to know which language to resolve it in. Rejects with a
+ * `SubmissionError` on failure, and with an `AbortError` when `signal` fires.
  */
 export async function submitConversation(
   answers: Answer[],
+  locale: Locale,
   signal?: AbortSignal,
 ): Promise<Configuration> {
-  const response = await fetch(toUrl('/api/conversation'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(answers),
-    signal,
-  });
+  const url = new URL(toUrl('/api/conversation'));
+  url.searchParams.set('locale', locale);
+
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(answers),
+      signal,
+    });
+  } catch (cause) {
+    // An abort is not a failure to report. The caller retired this attempt on
+    // purpose and drops whatever comes back, so it is rethrown untouched rather
+    // than turned into something the UI would try to explain.
+    if (cause instanceof Error && cause.name === 'AbortError') throw cause;
+    throw new SubmissionError('transport');
+  }
 
   if (!response.ok) {
-    throw new Error(await messageFor(response));
+    throw new SubmissionError(await failureFor(response));
   }
 
   const accepted = acceptedResponseSchema.safeParse(await readJson(response));
   if (!accepted.success) {
-    throw new Error('Die Antwort des Servers war unerwartet aufgebaut.');
+    throw new SubmissionError('unexpected_response');
   }
 
   return accepted.data.configuration;

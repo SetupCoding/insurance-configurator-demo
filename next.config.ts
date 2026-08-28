@@ -1,19 +1,20 @@
 import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 /**
- * Response headers applied to every route.
+ * Response headers applied to every route, including the ones the proxy
+ * does not run on (the API route, `_next` output, `public/`).
  *
- * There is deliberately no Content-Security-Policy here. Emotion (which MUI
- * renders through) and Next's own bootstrap both inject inline style and
- * script, so a useful policy needs a per-request nonce threaded through
- * middleware into AppRouterCacheProvider. A policy wide enough to work without
- * that would allow exactly what it is supposed to forbid, so the gap is left
- * visible rather than papered over.
+ * The Content-Security-Policy is deliberately not here. It needs a fresh nonce
+ * per request, and this config is evaluated once at build time, so it lives in
+ * `src/proxy.ts` instead. See ADR 0011 for what that costs and why it is
+ * worth it.
  */
 const SECURITY_HEADERS = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  // No part of this app is meant to be framed.
+  // No part of this app is meant to be framed. The CSP says the same thing
+  // with `frame-ancestors`; this is the header older browsers read instead.
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
   // Ignored over plain HTTP, so it is safe to set for local runs too.
@@ -37,4 +38,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+
+export default withNextIntl(nextConfig);

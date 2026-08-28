@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { submitConversation } from '@/lib/api/submitConversation';
+import {
+  SubmissionError,
+  type SubmissionFailure,
+  submitConversation,
+} from '@/lib/api/submitConversation';
+import type { Locale } from '@/lib/i18n/locales';
 import type { Configuration } from '@/lib/schema/conversation';
 
 import type { Answer } from './types';
@@ -11,20 +16,27 @@ type SubmitState =
   | { status: 'idle' }
   | { status: 'pending' }
   | { status: 'success'; configuration: Configuration }
-  | { status: 'error'; error: Error };
+  | { status: 'error'; failure: SubmissionFailure };
 
 const IDLE: SubmitState = { status: 'idle' };
 
-function asError(cause: unknown): Error {
-  return cause instanceof Error ? cause : new Error('Die Übermittlung ist fehlgeschlagen.');
+/**
+ * Anything that is not a code the API layer reported is a transport failure:
+ * the request never came back with something this app can explain.
+ */
+function asFailure(cause: unknown): SubmissionFailure {
+  return cause instanceof SubmissionError ? cause.code : 'transport';
 }
 
 /**
  * Hand-rolled rather than delegated to a mutation library, because this POST
  * must never retry on its own and must be cancellable. See ADR 0010 for the
  * full argument.
+ *
+ * `locale` is needed because the server resolves the reply's wording in it, so
+ * it belongs to the request rather than to the rendering of the result.
  */
-export function useSubmitAnswers() {
+export function useSubmitAnswers(locale: Locale) {
   const [state, setState] = useState<SubmitState>(IDLE);
   const controller = useRef<AbortController | null>(null);
   const attempt = useRef(0);
@@ -56,7 +68,7 @@ export function useSubmitAnswers() {
       controller.current = abort;
       setState({ status: 'pending' });
 
-      submitConversation(answers, abort.signal).then(
+      submitConversation(answers, locale, abort.signal).then(
         (configuration) => {
           if (attempt.current !== current) return;
           inFlight.current = false;
@@ -65,11 +77,11 @@ export function useSubmitAnswers() {
         (cause: unknown) => {
           if (attempt.current !== current) return;
           inFlight.current = false;
-          setState({ status: 'error', error: asError(cause) });
+          setState({ status: 'error', failure: asFailure(cause) });
         },
       );
     },
-    [discard],
+    [discard, locale],
   );
 
   const reset = useCallback(() => {
@@ -83,7 +95,7 @@ export function useSubmitAnswers() {
     isSuccess: state.status === 'success',
     isError: state.status === 'error',
     configuration: state.status === 'success' ? state.configuration : undefined,
-    error: state.status === 'error' ? state.error : undefined,
+    failure: state.status === 'error' ? state.failure : undefined,
     submit,
     reset,
   };
