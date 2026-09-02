@@ -4,6 +4,7 @@ import { Box, styled, ToggleButton, ToggleButtonGroup, Typography } from '@mui/m
 import type { ComponentRef } from 'react';
 import { useEffect, useRef } from 'react';
 
+import { revealElement } from '@/lib/browser/reveal';
 import type { OptionValue, Step } from '@/lib/schema/flow';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
@@ -31,12 +32,6 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   },
 }));
 
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
-
 type Props = {
   step: Step;
   selectedValue: OptionValue | null;
@@ -60,10 +55,7 @@ export const StepQuestion = ({
     // The first option rather than the heading, so a keyboard user lands on
     // something actionable instead of having to tab past a heading first.
     firstOptionRef.current?.focus();
-    firstOptionRef.current?.scrollIntoView({
-      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-      block: 'center',
-    });
+    revealElement(firstOptionRef.current, 'center');
   }, [autoFocus]);
 
   return (
