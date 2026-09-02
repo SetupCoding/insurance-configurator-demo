@@ -1,10 +1,20 @@
 'use client';
 
 import SendIcon from '@mui/icons-material/Send';
-import { Box, Button, CircularProgress, Container, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  type SxProps,
+  type Theme,
+  Typography,
+} from '@mui/material';
 import { useTranslations } from 'next-intl';
+import { useEffect, useRef } from 'react';
 
 import { ConfigurationSummary, Conversation, ErrorState, Header } from '@/components';
+import { revealElement } from '@/lib/browser/reveal';
 import type { Locale } from '@/lib/i18n/locales';
 import type { Flow } from '@/lib/schema/flow';
 import { ICON_LABEL_ALIGNMENT } from '@/theme/buttonStyles';
@@ -12,6 +22,10 @@ import { ICON_LABEL_ALIGNMENT } from '@/theme/buttonStyles';
 import { ResetButton } from './ResetButton';
 import { useInsuranceFlow } from './useInsuranceFlow';
 import { useSubmitAnswers } from './useSubmitAnswers';
+
+// The scroll margin is what keeps the revealed block off the very bottom edge
+// of the viewport, which scrolling it into view would otherwise put it against.
+const OUTCOME: SxProps<Theme> = { mt: 4, scrollMarginBottom: (theme) => theme.spacing(3) };
 
 type Props = {
   /** Already resolved to `locale` by the server; see `localizeFlow`. */
@@ -35,6 +49,28 @@ export const InsuranceChat = ({ flow, locale }: Props) => {
   const { steps, isFinished, hasAnswers, answers, selectOption, reset } = useInsuranceFlow(flow, {
     persist: !submission.isSuccess,
   });
+
+  // The result and the failure never appear together, so one pair of refs
+  // covers whichever of them arrives.
+  const outcomeRef = useRef<HTMLDivElement>(null);
+  const outcomeActionRef = useRef<HTMLButtonElement>(null);
+  const hasOutcome = submission.isSuccess || submission.isError;
+
+  // Submitting replaces the button that was clicked with something taller in
+  // the same place, so the answer extends past the bottom of the viewport while
+  // the part of the page the user is looking at has not moved: it reads as
+  // nothing having happened. Focus needs moving anyway, since the clicked
+  // button is gone and would otherwise leave focus on the body.
+  //
+  // The end of the block is what gets aligned, so the action that now has focus
+  // is on screen with the result above it, and a summary too long for a small
+  // viewport loses its heading rather than its content. Focusing without
+  // preventScroll would scroll to the button first and fight that.
+  useEffect(() => {
+    if (!hasOutcome) return;
+    outcomeActionRef.current?.focus({ preventScroll: true });
+    revealElement(outcomeRef.current, 'end');
+  }, [hasOutcome]);
 
   const handleReset = () => {
     // Resetting during a submission aborts it, so a response already on the
@@ -102,17 +138,21 @@ export const InsuranceChat = ({ flow, locale }: Props) => {
         )}
 
         {submission.configuration && (
-          <Box sx={{ mt: 4 }}>
+          <Box ref={outcomeRef} sx={OUTCOME}>
             <ConfigurationSummary configuration={submission.configuration} />
             <Box sx={{ mt: 3 }}>
-              <ResetButton onConfirm={handleReset} />
+              <ResetButton ref={outcomeActionRef} onConfirm={handleReset} />
             </Box>
           </Box>
         )}
 
         {submission.isError && (
-          <Box sx={{ mt: 4 }}>
-            <ErrorState failure={submission.failure} onRetry={() => submission.submit(answers)} />
+          <Box ref={outcomeRef} sx={OUTCOME}>
+            <ErrorState
+              ref={outcomeActionRef}
+              failure={submission.failure}
+              onRetry={() => submission.submit(answers)}
+            />
           </Box>
         )}
       </Container>

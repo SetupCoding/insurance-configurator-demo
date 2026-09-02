@@ -59,6 +59,25 @@ test('walks through the flow to the validated configuration', async ({ page }) =
   await expect(page.getByRole('heading', { name: EN.summary })).toBeVisible();
 });
 
+test('brings the result into view rather than adding it below the fold', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto('/en');
+
+  // The longest path, so the conversation above the result is taller than the
+  // viewport and the page genuinely has to move to show what came back.
+  await choose(page, QUESTIONS.liability, EN.options.yes);
+  await choose(page, QUESTIONS.casco, EN.options.yes);
+  await choose(page, QUESTIONS.cascoType, EN.options.fullCasco);
+  await choose(page, QUESTIONS.licensePlateType, EN.options.singlePlate);
+  await page.getByRole('button', { name: EN.submit }).click();
+
+  // Rendered is not the same as seen: the result has to be on screen from its
+  // heading down to the button that follows it, with the keyboard there too.
+  await expect(page.getByRole('heading', { name: EN.summary })).toBeInViewport();
+  await expect(page.getByRole('button', { name: EN.reset })).toBeInViewport();
+  await expect(page.getByRole('button', { name: EN.reset })).toBeFocused();
+});
+
 test('removes downstream steps when an earlier answer changes', async ({ page }) => {
   await page.goto('/en');
 

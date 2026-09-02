@@ -3,6 +3,7 @@
 import SendIcon from '@mui/icons-material/Send';
 import { Box, Button, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
+import type { Ref } from 'react';
 
 import type { SubmissionFailure } from '@/lib/api/submitConversation';
 import { ICON_LABEL_ALIGNMENT } from '@/theme/buttonStyles';
@@ -12,6 +13,8 @@ type Props = {
   failure?: SubmissionFailure;
   /** When provided, a retry button is shown instead of the "try later" hint. */
   onRetry?: () => void;
+  /** Attached to the retry button, so a caller can move focus to it. */
+  ref?: Ref<HTMLButtonElement>;
 };
 
 /**
@@ -23,7 +26,7 @@ type Props = {
  * built was thrown away, so a rejected path and an unreachable server read
  * identically. The reason is now shown.
  */
-export const ErrorState = ({ failure, onRetry }: Props) => {
+export const ErrorState = ({ failure, onRetry, ref }: Props) => {
   const t = useTranslations('error');
 
   if (!failure) return null;
@@ -39,6 +42,7 @@ export const ErrorState = ({ failure, onRetry }: Props) => {
       <Typography>{t(failure)}</Typography>
       {onRetry ? (
         <Button
+          ref={ref}
           variant="contained"
           color="error"
           startIcon={<SendIcon />}

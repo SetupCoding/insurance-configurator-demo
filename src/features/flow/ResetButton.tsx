@@ -3,7 +3,7 @@
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { Box, Button, Typography } from '@mui/material';
 import { useTranslations } from 'next-intl';
-import { useRef } from 'react';
+import { type Ref, useRef } from 'react';
 
 // Deliberately not ICON_LABEL_ALIGNMENT: this is a small text button, whose
 // smaller icon does not need the one-pixel nudge that the medium contained
@@ -12,6 +12,8 @@ const buttonSx = { lineHeight: 1 } as const;
 
 type Props = {
   onConfirm: () => void;
+  /** Attached to the button itself, so a caller can move focus to it. */
+  ref?: Ref<HTMLButtonElement>;
 };
 
 /**
@@ -23,7 +25,7 @@ type Props = {
  * autoFocus unset is deliberate too, since showModal() then focuses the first
  * button, so a stray Enter cancels rather than confirming.
  */
-export const ResetButton = ({ onConfirm }: Props) => {
+export const ResetButton = ({ onConfirm, ref }: Props) => {
   const t = useTranslations('reset');
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -36,6 +38,7 @@ export const ResetButton = ({ onConfirm }: Props) => {
   return (
     <>
       <Button
+        ref={ref}
         onClick={() => dialogRef.current?.showModal()}
         startIcon={<RestartAltIcon />}
         size="small"

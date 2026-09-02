@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { delay, http, HttpResponse } from 'msw';
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it, onTestFinished, vi } from 'vitest';
 
 import { getFlow } from '@/lib/data/flow';
 import { localizeFlow } from '@/lib/domain/localizeFlow';
@@ -60,6 +60,17 @@ async function completeFlow() {
 async function submitFlow() {
   await completeFlow();
   await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+}
+
+/**
+ * jsdom has no layout, so what can be observed about a scroll is the call and
+ * the element it was made on. Which element is the point here: scrolling the
+ * button into view is not the same as scrolling the block it belongs to.
+ */
+function watchScrollIntoView() {
+  const spy = vi.spyOn(HTMLElement.prototype, 'scrollIntoView');
+  onTestFinished(() => spy.mockRestore());
+  return spy;
 }
 
 describe('InsuranceChat', () => {
@@ -265,6 +276,38 @@ describe('InsuranceChat', () => {
     // Exactly one reset button exists post-submission, right after the
     // result, not still sitting in the header too.
     expect(screen.getAllByRole('button', { name: 'Start over' })).toHaveLength(1);
+  });
+
+  it('brings the result into view and puts focus on the action beside it', async () => {
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
+    await completeFlow();
+
+    // Spied on only now, so the scrolls the questions do on their way past are
+    // not mistaken for this one.
+    const scrollIntoView = watchScrollIntoView();
+    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    const heading = await screen.findByRole('heading', { name: 'Your demo configuration' });
+
+    expect(scrollIntoView.mock.contexts.at(-1)).toContainElement(heading);
+    expect(screen.getByRole('button', { name: 'Start over' })).toHaveFocus();
+  });
+
+  it('brings a failure into view and puts focus on the retry', async () => {
+    server.use(
+      http.post('*/api/conversation', () =>
+        HttpResponse.json({ error: 'invalid_path' }, { status: 422 }),
+      ),
+    );
+
+    renderWithTheme(<InsuranceChat flow={flow} locale="en" />);
+    await completeFlow();
+
+    const scrollIntoView = watchScrollIntoView();
+    await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    const alert = await screen.findByRole('alert');
+
+    expect(scrollIntoView.mock.contexts.at(-1)).toContainElement(alert);
+    expect(screen.getByRole('button', { name: 'Submit again' })).toHaveFocus();
   });
 
   it('shows an error with a working retry when submission fails', async () => {
