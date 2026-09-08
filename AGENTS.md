@@ -59,12 +59,16 @@ decided, and see [README.md](README.md) for what the app is.
   `vitest.config.mts`.
 - **The pnpm version is pinned in three places** and they have to agree:
   `packageManager` in `package.json`, `corepack prepare` in the `Dockerfile`, and
-  `installCommand` in `vercel.json`. The workflows read the first one, so they
-  need no edit. `vercel.json` names it because Vercel supports pnpm 6 to 10 only
-  and its own provisioning of 12 fails; the override installs pnpm through npx
-  instead, which resolves the per-platform binary correctly. Drop the override
-  once Vercel ships support (vercel/vercel#17434), and note that JSON takes no
-  comment, which is why this is written here.
+  `installCommand` and `buildCommand` in `vercel.json`. The workflows read the
+  first one, so they need no edit. `vercel.json` names it twice because Vercel
+  supports pnpm 6 to 10 only: its container pnpm reads `packageManager`, tries to
+  switch to 12 and dies with "the installed pnpm wrapper is missing". Both hooks
+  have to route around it, and the build one is easy to miss because overriding
+  only the install still leaves `pnpm run build` going through the broken engine.
+  npx is what makes it work: it installs the per-platform binary pnpm 12 ships as
+  an optional dependency, which Vercel's own installer does not. Drop both once
+  vercel/vercel#17434 ships, and note that JSON takes no comment, which is why
+  this is written here.
 - The proxy is `src/proxy.ts`, not `middleware.ts`. Next 16.3 renamed the
   convention and deprecates the old name.
 - `next start` warning about `output: standalone` is expected locally. Standalone
