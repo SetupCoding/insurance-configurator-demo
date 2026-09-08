@@ -5,14 +5,31 @@ updates:
     schedule:
       interval: weekly
     groups:
+      # Minor and patch only, deliberately. A grouped major the toolchain
+      # cannot take blocks every other update in the same PR: the TypeScript 7
+      # bump below arrived alongside eight safe bumps and failed the lint job
+      # for all nine. Majors now come one per PR, where one being held back
+      # does not hold back the rest.
       dev-dependencies:
         dependency-type: development
+        update-types: ['minor', 'patch']
     ignore:
       # @types/node describes the runtime this project actually runs on, which
       # is the 24 line (see engines in package.json, .nvmrc and the Dockerfile).
       # Taking the newest published major would document a Node nothing here
       # uses. Bump it in the same change that moves the runtime, never alone.
       - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+
+      # TypeScript 7 is the native rewrite, and typescript-eslint refuses to
+      # load against it at all: it throws "typescript-eslint does not support
+      # TS 7.0" before a single file is linted. Its peer range is
+      # >=4.8.4 <6.1.0, and 6.x never shipped a stable release, so 5.9.x is
+      # the newest TypeScript this lint setup can run.
+      #
+      # Revisit when typescript-eslint supports TS >=7.1, tracked in
+      # https://github.com/typescript-eslint/typescript-eslint/issues/10940.
+      - dependency-name: 'typescript'
         update-types: ['version-update:semver-major']
 
   - package-ecosystem: github-actions
