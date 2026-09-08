@@ -17,6 +17,15 @@ import { z } from 'zod';
  * The interpreted path costs nothing measurable here. The largest thing this
  * app validates is a six-element array, once per submission, and on the server
  * the flow fixture once at boot.
+ *
+ * Zod 4.5 added `z.compile()`, which generates the same fast path on demand
+ * and, unlike the global `import 'zod/compile'` opt-in, does not consult
+ * `jitless`. Measured against 4.5.4: two `new Function` calls per schema
+ * compiled, which is two violation reports in the browser and no speedup,
+ * because the generated function is rejected and Zod falls back here anyway.
+ * So the rule is the flag plus one more: do not call `z.compile()`. Nothing
+ * here would gain from it in any case, the flow fixture being the only schema
+ * big enough to care and parsed exactly once.
  */
 z.config({ jitless: true });
 

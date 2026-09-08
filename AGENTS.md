@@ -33,7 +33,9 @@ decided, and see [README.md](README.md) for what the app is.
   single locale by `localizeFlow` on the server. Keep them apart; that boundary
   is the point of the arrangement.
 - Import `z` from `@/lib/schema/zod`, never from `zod` directly. That module
-  configures `jitless`, and bypassing it reintroduces a CSP violation.
+  configures `jitless`, and bypassing it reintroduces a CSP violation. Do not
+  call `z.compile()` from it either: that API ignores `jitless` by design, so
+  it reintroduces the same violation from a module that looks correct.
 
 ## Things that will bite
 
