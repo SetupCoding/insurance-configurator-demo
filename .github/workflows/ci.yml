@@ -70,9 +70,14 @@ jobs:
           if-no-files-found: ignore
 
   # The unit and e2e jobs both run against a dev/next-start server, so neither
-  # exercises the standalone bundle the image actually ships. A missing .npmrc in
-  # the deps stage passed every other gate and still produced a container that
-  # died at start on an unresolvable @swc/helpers, which is what this catches.
+  # exercises the standalone bundle the image actually ships. This job exists
+  # because a deps stage built without the hoisted linker once passed every other
+  # gate and still produced a container that died at start on an unresolvable
+  # @swc/helpers.
+  #
+  # It no longer catches that fault. On Next 16.3.3 the same incomplete bundle
+  # starts and answers every assertion below, so do not read a pass here as proof
+  # the layout is right. See the update in docs/adr/0006.
   docker:
     name: Container image
     runs-on: ubuntu-latest

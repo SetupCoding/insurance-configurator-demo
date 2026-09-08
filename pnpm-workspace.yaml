@@ -1,3 +1,35 @@
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
+# pnpm has read only auth and registry settings from .npmrc since v11, so every
+# other setting lives here now.
+#
+# The Next.js standalone build traces runtime dependencies by walking
+# node_modules, and the default symlinked layout leaves @swc/helpers out of the
+# bundle, so this line is load-bearing for the container (ADR 0006).
+#
+# It is also unguarded. Removing it still produces that incomplete bundle, but
+# measured on Next 16.3.3 the container starts, reports healthy and answers
+# every request CI makes of it, so no job fails. pnpm ignores the old
+# `node-linker=hoisted` spelling in .npmrc without warning too. Read the update
+# in docs/adr/0006 before touching this.
+nodeLinker: hoisted
+
+# Replaces ignoredBuiltDependencies, which v11 folded into this map, and names
+# three packages that setting did not. None of these have run their build script
+# here under any version: pnpm denies every dependency by default, and the app
+# builds and the container passes its healthcheck without them. The list grew
+# only because v11 promoted the warning about an undeclared one into an error
+# (strictDepBuilds defaults to true), so the refusal has to be written down now
+# rather than tolerated as install noise. `false` is that refusal, and it keeps
+# the behaviour this project already had.
+allowBuilds:
+  '@parcel/watcher': false
+  '@swc/core': false
+  msw: false
+  sharp: false
+  unrs-resolver: false
+
+# minimumReleaseAge is deliberately left at its v11 default of 1440, so a
+# release published less than a day ago is refused. Worth knowing where that
+# surfaces: the policy is checked against the committed lockfile on every
+# install, --frozen-lockfile included, so a Dependabot PR that locks a same-day
+# release fails CI until the release ages past the cutoff. Rerunning the job a
+# day later passes with no change to the branch.

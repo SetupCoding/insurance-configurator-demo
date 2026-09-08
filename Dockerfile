@@ -6,15 +6,20 @@ FROM node:24-alpine@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a5
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 ENV HUSKY=0
-RUN corepack enable && corepack prepare pnpm@10.28.0 --activate
+# The trailing `pnpm --version` is not a smoke test. pnpm 12 ships as a
+# launcher whose real binary is an optional per-platform dependency, which
+# Corepack does not install and pnpm therefore fetches on first run. Doing that
+# here lands it in this layer, which both stages below inherit, instead of
+# fetching it again in each of them.
+RUN corepack enable && corepack prepare pnpm@12.3.4 --activate && pnpm --version
 WORKDIR /app
 
 # ---- Dependencies ----------------------------------------------------------
 FROM base AS deps
-# .npmrc carries node-linker=hoisted, which the standalone build depends on
-# (see docs/adr/0006). Leaving it out silently gives the symlinked layout and a
-# container that dies at start on a missing @swc/helpers.
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+# pnpm-workspace.yaml carries nodeLinker: hoisted, which the standalone build
+# depends on (see docs/adr/0006). Leaving it out silently gives the symlinked
+# layout and a container that dies at start on a missing @swc/helpers.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # ---- Build -----------------------------------------------------------------

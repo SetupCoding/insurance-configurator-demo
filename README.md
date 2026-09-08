@@ -24,7 +24,7 @@ portfolio piece.
 
 ## Run it
 
-Needs Node 24 and pnpm 10 (see `engines`, `.nvmrc` and `packageManager` in
+Needs Node 24 and pnpm 12 (see `engines`, `.nvmrc` and `packageManager` in
 `package.json`).
 
 ```bash
