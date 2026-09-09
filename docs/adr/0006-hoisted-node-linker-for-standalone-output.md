@@ -49,9 +49,18 @@ and `require.resolve` for it throws inside the container. But on Next 16.3.3 the
 container no longer dies for it. It starts, reports healthy, serves both locales,
 answers every API assertion in the container job and logs nothing at all.
 
-So the failure has gone from loud to latent, and the container job is no longer
-proof that this setting is present. Anything that reintroduces the symlinked
-layout now passes CI and ships a bundle missing a transitive dependency.
-Restoring a real gate, or removing the need for one with the explicit
-`outputFileTracingIncludes` the consequences above already float, is worth its
-own change rather than a footnote to this one.
+So the failure went from loud to latent, and for a while the container job
+proved nothing: anything reintroducing the symlinked layout would have passed CI
+and shipped a bundle missing a transitive dependency.
+
+The gate is now explicit instead of incidental. The container job resolves
+`@swc/helpers/_/_interop_require_default` and `_interop_require_wildcard` inside
+the running image, which are the only two helper modules anything in the bundle
+requires, and Next requires them at the top of its own `app-router`. That step
+fails on exactly the image that starts up clean without them, which was checked
+by building one and watching it go red.
+
+The alternative this ADR floated, dropping the hoisted layout and naming the
+dependency in `outputFileTracingIncludes` instead, is still open and would buy
+back pnpm's strict isolation. It is a change to what this ADR decided rather
+than to how it is enforced, so it wants its own decision.

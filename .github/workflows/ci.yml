@@ -75,9 +75,10 @@ jobs:
   # gate and still produced a container that died at start on an unresolvable
   # @swc/helpers.
   #
-  # It no longer catches that fault. On Next 16.3.3 the same incomplete bundle
-  # starts and answers every assertion below, so do not read a pass here as proof
-  # the layout is right. See the update in docs/adr/0006.
+  # Starting and serving stopped being evidence of that: on Next 16.3.3 the same
+  # incomplete bundle comes up healthy and answers every request below. The
+  # resolve step is what actually proves the layout, and it is the only thing in
+  # this job that fails on a bundle missing the dependency. See docs/adr/0006.
   docker:
     name: Container image
     runs-on: ubuntu-latest
@@ -97,6 +98,15 @@ jobs:
           done
           echo "container never became healthy"
           exit 1
+      # Next's own app-router requires these two at the top level, so a bundle
+      # without them crashes on whichever request first loads it. The healthcheck
+      # above does not, and neither does anything else here, so the claim is
+      # asserted rather than assumed. Deleting nodeLinker from
+      # pnpm-workspace.yaml is what makes this step fail.
+      - name: Resolve the dependency the standalone trace drops
+        run: >-
+          docker exec web node -e "require.resolve('@swc/helpers/_/_interop_require_default');
+          require.resolve('@swc/helpers/_/_interop_require_wildcard')"
       - name: Accept a complete path
         run: |
           code=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:3000/api/conversation \

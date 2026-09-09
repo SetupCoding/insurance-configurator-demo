@@ -5,11 +5,12 @@
 # node_modules, and the default symlinked layout leaves @swc/helpers out of the
 # bundle, so this line is load-bearing for the container (ADR 0006).
 #
-# It is also unguarded. Removing it still produces that incomplete bundle, but
-# measured on Next 16.3.3 the container starts, reports healthy and answers
-# every request CI makes of it, so no job fails. pnpm ignores the old
-# `node-linker=hoisted` spelling in .npmrc without warning too. Read the update
-# in docs/adr/0006 before touching this.
+# Deleting it does not fail loudly on its own. Measured on Next 16.3.3, the
+# container still starts, reports healthy and answers every request CI makes of
+# it while shipping a bundle that cannot resolve @swc/helpers, and pnpm ignores
+# the old `node-linker=hoisted` spelling in .npmrc without warning. The resolve
+# step in the container job is what catches it. Read the update in
+# docs/adr/0006 before touching this.
 nodeLinker: hoisted
 
 # Replaces ignoredBuiltDependencies, which v11 folded into this map, and names
