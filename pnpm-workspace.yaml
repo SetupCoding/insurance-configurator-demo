@@ -13,22 +13,20 @@
 # docs/adr/0006 before touching this.
 nodeLinker: hoisted
 
-# pnpm's own version switching is off. That is what keeps the `packageManager`
-# pin from adding a second YAML document to pnpm-lock.yaml, and that document
-# matters because Dependabot cannot parse one: its pnpm helper wants a
-# `specifiers` field the env document has not got, so every npm update PR fails
-# with dependency_file_not_parseable (dependabot-core#14794).
+# pnpm's own version switching is off, and there is no `packageManager` field
+# in package.json for it to act on. Both halves of that matter.
 #
-# Switching was never load-bearing here, and it had already broken three things.
-# pnpm 12 ships a launcher whose real binary is an optional per-platform
-# dependency, and every consumer that tried to honour the pin by fetching 12
-# itself left that binary unresolved: Vercel's install, Vercel's build, and
-# pnpm 10 on Windows. `ignore` is the successor to the removed
-# `managePackageManagerVersions: false`.
+# Fetching the declared version is what pnpm 12 cannot do reliably: it ships a
+# launcher whose real binary is an optional per-platform dependency, and every
+# consumer that tried to fetch 12 on its own left that binary unresolved.
+# Vercel's install, Vercel's build, pnpm 10 on Windows and the Dependabot
+# updater all failed that way, the last of them on a blocked request for
+# @pnpm/exe.linux-x64. So each environment names the version itself instead:
+# see the note in AGENTS.md for where.
 #
-# So the pin documents the version rather than enforcing it. CI installs it via
-# pnpm/action-setup, the Dockerfile hands it to corepack, and a local checkout
-# needs pnpm 12 present already.
+# This setting stays even with nothing to switch on, so that re-adding a
+# `packageManager` field cannot quietly bring back the second lockfile
+# document that Dependabot refuses to parse (dependabot-core#14794).
 pmOnFail: ignore
 
 # Replaces ignoredBuiltDependencies, which v11 folded into this map, and names
