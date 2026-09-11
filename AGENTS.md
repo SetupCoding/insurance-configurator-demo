@@ -57,10 +57,9 @@ decided, and see [README.md](README.md) for what the app is.
 - **Coverage floors are not there to be lowered** so a change fits. The domain
   and security modules are held to full statement, line and function cover in
   `vitest.config.mts`.
-- **The pnpm version is pinned in six places and nothing derives it.** Both
-  `pnpm/action-setup` steps in `ci.yml`, the one in `visual.yml`, `corepack
-prepare` in the `Dockerfile`, and `installCommand` plus `buildCommand` in
-  `vercel.json`. They all have to agree.
+- **The pnpm version is pinned in four places and nothing derives it.** Both
+  `pnpm/action-setup` steps in `ci.yml`, the one in `visual.yml`, and `corepack
+prepare` in the `Dockerfile`. They all have to agree.
 
   There is deliberately no `packageManager` field in `package.json`, which is
   what would otherwise let every one of those read the version from a single
@@ -72,11 +71,10 @@ prepare` in the `Dockerfile`, and `installCommand` plus `buildCommand` in
   the version per environment is duplication bought deliberately, in exchange for
   nothing trying to resolve it at run time.
 
-  `vercel.json` names it twice because Vercel supports pnpm 6 to 10 only, and
-  both its install and build hooks otherwise route through a pnpm that cannot
-  provision 12. npx is what makes those work: it installs the optional
-  per-platform dependency the way Vercel does not. Revisit when
-  vercel/vercel#17434 ships. JSON takes no comment, which is why this is here.
+  Vercel is the exception that needs no pin. It picks its own pnpm from the
+  lockfile version, which works because removing `packageManager` left nothing
+  for it to react to. That means production installs on a different pnpm major
+  than CI validates on, off one lockfile both can read.
 
 - The proxy is `src/proxy.ts`, not `middleware.ts`. Next 16.3 renamed the
   convention and deprecates the old name.
