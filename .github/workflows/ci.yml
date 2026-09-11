@@ -1,16 +1,22 @@
 name: CI
 
+# Every branch, not just main, so a push is verified before it ever becomes a
+# pull request. Nothing here deploys: the container job builds an image and
+# throws it away, and Vercel does its own deployments outside this workflow.
 on:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
     branches: [main]
 
 permissions:
   contents: read
 
+# Keyed on the branch name rather than the ref, so the push and the
+# pull_request event for one branch share a group and the second cancels the
+# first instead of running the whole suite twice.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 # Actions are pinned to a commit SHA rather than a tag. A tag is mutable, so
