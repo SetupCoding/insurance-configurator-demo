@@ -24,8 +24,8 @@ portfolio piece.
 
 ## Run it
 
-Needs Node 24 and pnpm 12 (see `engines`, `.nvmrc` and `packageManager` in
-`package.json`).
+Needs Node 24 and pnpm 12. Node is declared in `engines` and `.nvmrc`; pnpm is
+named per environment rather than in `package.json`, and AGENTS.md says why.
 
 ```bash
 pnpm install     # also activates the Husky git hooks

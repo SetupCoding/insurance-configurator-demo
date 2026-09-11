@@ -57,18 +57,27 @@ decided, and see [README.md](README.md) for what the app is.
 - **Coverage floors are not there to be lowered** so a change fits. The domain
   and security modules are held to full statement, line and function cover in
   `vitest.config.mts`.
-- **The pnpm version is pinned in three places** and they have to agree:
-  `packageManager` in `package.json`, `corepack prepare` in the `Dockerfile`, and
-  `installCommand` and `buildCommand` in `vercel.json`. The workflows read the
-  first one, so they need no edit. `vercel.json` names it twice because Vercel
-  supports pnpm 6 to 10 only: its container pnpm reads `packageManager`, tries to
-  switch to 12 and dies with "the installed pnpm wrapper is missing". Both hooks
-  have to route around it, and the build one is easy to miss because overriding
-  only the install still leaves `pnpm run build` going through the broken engine.
-  npx is what makes it work: it installs the per-platform binary pnpm 12 ships as
-  an optional dependency, which Vercel's own installer does not. Drop both once
-  vercel/vercel#17434 ships, and note that JSON takes no comment, which is why
-  this is written here.
+- **The pnpm version is pinned in six places and nothing derives it.** Both
+  `pnpm/action-setup` steps in `ci.yml`, the one in `visual.yml`, `corepack
+prepare` in the `Dockerfile`, and `installCommand` plus `buildCommand` in
+  `vercel.json`. They all have to agree.
+
+  There is deliberately no `packageManager` field in `package.json`, which is
+  what would otherwise let every one of those read the version from a single
+  place. pnpm 12 ships a launcher whose real binary is an optional per-platform
+  dependency, and anything that reacted to that field by fetching pnpm 12 itself
+  ended up without the binary: Vercel's install, Vercel's build, pnpm 10
+  delegating on Windows, and the Dependabot updater, which failed on a blocked
+  request for `@pnpm/exe.linux-x64` and took every npm update PR with it. Naming
+  the version per environment is duplication bought deliberately, in exchange for
+  nothing trying to resolve it at run time.
+
+  `vercel.json` names it twice because Vercel supports pnpm 6 to 10 only, and
+  both its install and build hooks otherwise route through a pnpm that cannot
+  provision 12. npx is what makes those work: it installs the optional
+  per-platform dependency the way Vercel does not. Revisit when
+  vercel/vercel#17434 ships. JSON takes no comment, which is why this is here.
+
 - The proxy is `src/proxy.ts`, not `middleware.ts`. Next 16.3 renamed the
   convention and deprecates the old name.
 - `next start` warning about `output: standalone` is expected locally. Standalone
